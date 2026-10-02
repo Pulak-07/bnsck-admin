@@ -109,7 +109,7 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Admin User / Email</label>
           <div class="relative">
             <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="text" id="loginEmail" required value="admin@sec-a-bnsck27.info.mp" placeholder="login id "
+            <input type="email" id="loginEmail" required value="admin@sec-a-bnsck27.info.mp" placeholder="login id "
               class="w-full pl-10 pr-4 py-2.5 bg-surface-850 border border-surface-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors" />
           </div>
         </div>
@@ -118,7 +118,7 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider"> Password</label>
           <div class="relative">
             <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="password" id="loginPassword" required value="null" 
+            <input type="password" id="loginPassword" required placeholder="Enter Supabase password" 
               class="w-full pl-10 pr-4 py-2.5 bg-surface-850 border border-surface-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors" />
           </div>
           <p class="text-[10px] text-slate-500 mt-1"> <code class="text-cyan-400 font-mono"></code>.</p>
@@ -241,7 +241,7 @@
         </div>
 
         <div class="px-3 py-2 rounded-xl bg-surface-950/60 border border-surface-800/80 text-[11px] text-slate-400 text-center">
-          Developed By: <span class="text-cyan-400 font-mono">< a href="pulakchakma.dev.cv> Pulak chakma </a></span>
+          Developed By: <span class="text-cyan-400 font-mono"> < a href="pulakchakma.dev.cv"> Pulak chakma </a> </span>
         </div>
       </div>
     </aside>
@@ -280,8 +280,6 @@
         <!-- TAB 1: DASHBOARD VIEW -->
         <section id="tab-dashboard" class="tab-pane space-y-6 fade-in">
           
-          
-
           <!-- Quick Stat Cards -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-5 relative overflow-hidden">
@@ -643,7 +641,7 @@
             </div>
             
           </div>
-          <p> <div class="md:col-span-3 space-y-2">
+          <div class="md:col-span-3 space-y-2">
             <h3 class="text-xs uppercase font-bold text-white tracking-wider">admin portal </h3>
             <div class="p-4 rounded-2xl glass-panel border-cyan-400/30 text-xs space-y-2 shadow-lg">
               <p class="text-slate-300"> operate mail account  :</p> 
@@ -652,9 +650,9 @@
                 login ↗
               </a>
               <div class="text-[11px] text-slate-400 font-sans tracking-wide"> admin has no restriction </div>
-            </div></p>
+            </div>
+          </div>
         </section>
-    
 
       </div>
     </main>
@@ -1057,34 +1055,61 @@
 
       errorBox.classList.add("hidden");
       loginBtn.disabled = true;
-      loginBtn.innerHTML = `<span>Connecting to Supabase...</span>`;
+      loginBtn.innerHTML = `<span>Authenticating with Supabase...</span>`;
 
-      // Allow master credentials or Supabase Auth
-      const isMaster = (password === "Pulak07082008?" || password === "Adminpass" || password.length >= 6);
+      try {
+        if (!supabaseClient) initSupabase();
 
-      if (isMaster) {
-        state.user = { email: email, role: 'admin' };
-        document.getElementById("loginView").classList.add("hidden");
-        document.getElementById("adminApp").classList.remove("hidden");
-        document.getElementById("userName").textContent = email.split('@')[0] || "Administrator";
-        
-        showToast("Signed in to Supabase Admin Portal", "success");
-        initSettingsFormValues();
-        renderAllTables();
-        await loadSupabaseData(false);
-        switchTab('dashboard');
-      } else {
-        document.getElementById("loginErrorMsg").textContent = "Invalid password. ";
+        // Attempt Supabase Auth Sign In first
+        let authSuccess = false;
+        if (supabaseClient && supabaseClient.auth) {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+          if (!error && data && data.user) {
+            authSuccess = true;
+            state.user = data.user;
+          }
+        }
+
+        // Fallback / Master password check for bootstrap admin
+        const isMaster = (password === "Bnsck15072025@" || password === "Pulak07082008?" || password === "Adminpass");
+        if (!authSuccess && isMaster) {
+          authSuccess = true;
+          state.user = { email: email, role: 'admin' };
+        }
+
+        if (authSuccess) {
+          document.getElementById("loginView").classList.add("hidden");
+          document.getElementById("adminApp").classList.remove("hidden");
+          document.getElementById("userName").textContent = email.split('@')[0] || "Administrator";
+          
+          showToast("Signed in to Supabase Admin Portal", "success");
+          initSettingsFormValues();
+          renderAllTables();
+          await loadSupabaseData(false);
+          switchTab('dashboard');
+        } else {
+          document.getElementById("loginErrorMsg").textContent = "Invalid email or password. Please verify your Supabase Auth credentials.";
+          errorBox.classList.remove("hidden");
+          showToast("Authentication failed", "error");
+        }
+      } catch (err) {
+        document.getElementById("loginErrorMsg").textContent = err.message || "Authentication error.";
         errorBox.classList.remove("hidden");
-        showToast("Invalid credentials", "error");
+        showToast("Authentication error", "error");
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = `<span>Sign In </span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        lucide.createIcons();
       }
-
-      loginBtn.disabled = false;
-      loginBtn.innerHTML = `<span>Sign In to Supabase Portal</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-      lucide.createIcons();
     }
 
-    function handleLogout() {
+    async function handleLogout() {
+      if (supabaseClient && supabaseClient.auth) {
+        await supabaseClient.auth.signOut();
+      }
       state.user = null;
       document.getElementById("adminApp").classList.add("hidden");
       document.getElementById("loginView").classList.remove("hidden");
@@ -1167,42 +1192,6 @@
       }
     }
 
-    async function pushDefaultRecordsToSupabase() {
-      const seedBtn = document.getElementById("seedBtn");
-      seedBtn.disabled = true;
-      seedBtn.innerHTML = `<span>Uploading 50 students...</span>`;
-      showToast("Transferring 50 student records to Supabase...", "info");
-
-      try {
-        if (!supabaseClient) initSupabase();
-
-        // 1. Upload 50 students
-        await supabaseClient.from('students').upsert(state.data.students, { onConflict: 'roll' });
-        
-        // 2. Upload notices
-        await supabaseClient.from('notices').upsert(state.data.notices);
-
-        // 3. Upload timeline
-        await supabaseClient.from('timeline').upsert(state.data.timeline);
-
-        // 4. Upload capsule
-        await supabaseClient.from('capsule').upsert(state.data.capsule);
-
-        // 5. Upload settings
-        await supabaseClient.from('settings').upsert(state.data.settings, { onConflict: 'key' });
-
-        showToast("✓ All 50 students and batch records pushed to Supabase!", "success");
-        await loadSupabaseData(false);
-      } catch (err) {
-        console.error("Supabase push error:", err);
-        showToast("Upload completed (records updated locally & online)", "success");
-      } finally {
-        seedBtn.disabled = false;
-        seedBtn.innerHTML = `<i data-lucide="database" class="w-4 h-4"></i><span>Push All 50 Students Now</span>`;
-        lucide.createIcons();
-      }
-    }
-
     function renderAllTables() {
       updateDashboardMetrics();
       renderStudentsTable();
@@ -1238,7 +1227,6 @@
         .upload(fileName, file, { cacheControl: '3600', upsert: true });
 
       if (error) {
-        // Fallback: create object URL if bucket is restricted
         return URL.createObjectURL(file);
       }
 
@@ -1435,14 +1423,12 @@
       try {
         showToast("Saving student record...", "info");
         
-        // Update local memory
         const idx = state.data.students.findIndex(s => s.roll === formattedRoll);
         if (idx !== -1) state.data.students[idx] = studentPayload;
         else state.data.students.push(studentPayload);
         
         renderStudentsTable();
 
-        // Push to Supabase
         if (supabaseClient) {
           await supabaseClient.from('students').upsert([studentPayload], { onConflict: 'roll' });
         }
@@ -2104,8 +2090,23 @@
         .replace(/'/g, "&#039;");
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       initSupabase();
+      if (supabaseClient && supabaseClient.auth) {
+        try {
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (session && session.user) {
+            state.user = session.user;
+            document.getElementById("loginView").classList.add("hidden");
+            document.getElementById("adminApp").classList.remove("hidden");
+            document.getElementById("userName").textContent = session.user.email ? session.user.email.split('@')[0] : "Administrator";
+            initSettingsFormValues();
+            await loadSupabaseData(false);
+          }
+        } catch (e) {
+          console.warn("Session check note:", e);
+        }
+      }
       renderAllTables();
       lucide.createIcons();
     });
