@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BNSCK HSC 2027 Science Section A - Supabase Admin Portal</title>
+  <title>BNSCK HSC 2027 Science Section A - Admin Portal</title>
   <link rel="icon" type="image/png" sizes="16x16" href="https://apiimage.astutebd.com/Uploads/bnsck/maincampus/About%20School//1072021113810AMzx.png">
   
   <!-- Inter & Plus Jakarta Sans typography -->
@@ -23,24 +23,12 @@
             mono: ['JetBrains Mono', 'monospace'],
           },
           colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              200: '#c7d2fe',
-              300: '#a5b4fc',
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              800: '#3730a3',
-              900: '#312e81',
-            },
             surface: {
-              950: '#07090e',
-              900: '#0c1017',
-              850: '#111722',
-              800: '#17202f',
-              700: '#232f42',
+              950: '#040711',
+              900: '#090f1d',
+              850: '#0e172a',
+              800: '#142038',
+              700: '#1e2e4e',
               600: '#334155',
             }
           }
@@ -49,199 +37,161 @@
     }
   </script>
 
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
   <style>
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0c1017;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #232f42;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #00e5ff;
-    }
-    .fade-in {
-      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090f1d; }
+    ::-webkit-scrollbar-thumb { background: #1e2e4e; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00e5ff; }
+    .fade-in { animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(5px); }
       to { opacity: 1; transform: translateY(0); }
     }
     .glass-panel {
-      background: rgba(12, 16, 23, 0.84);
+      background: rgba(9, 15, 29, 0.88);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
     }
   </style>
-
-  <!-- Lucide Icons & Supabase JS v2 -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-surface-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200">
 
   <!-- 1. AUTHENTICATION GATEWAY -->
   <div id="loginView" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface-950/95 backdrop-blur-xl">
-    <div class="w-full max-w-md bg-surface-900 border border-surface-700/80 rounded-3xl p-8 shadow-2xl relative overflow-hidden fade-in">
-      <div class="absolute -top-24 -right-24 w-48 h-48 bg-cyan-600/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div class="flex items-center gap-3.5 mb-7">
-        <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-500/0">
+    <div class="w-full max-w-md bg-surface-900 border border-surface-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden fade-in">
+      <div class="flex items-center gap-3.5 mb-6">
+        <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center border border-cyan-500/30 bg-surface-850">
           <img src="https://apiimage.astutebd.com/Uploads/bnsck/maincampus/About%20School//1072021113810AMzx.png" alt="BNSCK" class="w-full h-full object-cover">
         </div>
         <div>
           <h1 class="text-lg font-bold text-white tracking-tight">BNSCK Science HSC 27</h1>
-          <p class="text-xs text-slate-400"> XII Class Section A &bull; </p>
+          <p class="text-xs text-cyan-400 font-mono">Administrative Control Console</p>
         </div>
       </div>
 
-      <div id="loginError" class="hidden mb-5 p-3.5 rounded-xl bg-rose-950/70 border border-rose-500/30 text-xs text-rose-200 flex items-start gap-2.5">
-        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+      <div id="loginError" class="hidden mb-4 p-3 rounded-xl bg-rose-950/70 border border-rose-500/30 text-xs text-rose-200 flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>
         <span id="loginErrorMsg">Invalid email or master password.</span>
       </div>
 
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Admin User / Email</label>
-          <div class="relative">
-            <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="email" id="loginEmail" required value="" placeholder="login id"
-              class="w-full pl-10 pr-4 py-2.5 bg-surface-850 border border-surface-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors" />
-          </div>
+          <input type="email" id="loginEmail" required value=""
+            class="w-full px-3.5 py-2.5 bg-surface-850 border border-surface-700 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-400" />
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Password</label>
-          <div class="relative">
-            <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="password" id="loginPassword" required placeholder="Enter Supabase password" 
-              class="w-full pl-10 pr-4 py-2.5 bg-surface-850 border border-surface-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors" />
-          </div>
+          <input type="password" id="loginPassword" required placeholder="Enter password" 
+            class="w-full px-3.5 py-2.5 bg-surface-850 border border-surface-700 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-400" />
         </div>
 
         <button type="submit" id="loginBtn"
-          class="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-600 via-sky-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-sm shadow-lg shadow-cyan-600/25 flex items-center justify-center gap-2 transition-all active:scale-[0.99] cursor-pointer">
-          <span>Sign In</span>
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-sm shadow-lg shadow-cyan-600/25 flex items-center justify-center gap-2 transition-all cursor-pointer">
+          <span>Sign In to Console</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
       </form>
-
-      <div class="mt-8 pt-5 border-t border-surface-700/50 text-center text-xs text-slate-500">
-        Only for authorized login
-      </div>
     </div>
   </div>
 
   <!-- 2. MAIN APPLICATION SHELL -->
   <div id="adminApp" class="hidden min-h-screen flex flex-col md:flex-row bg-surface-950">
 
-    <!-- Mobile Sidebar Backdrop -->
-    <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden backdrop-blur-sm"></div>
+    <!-- Mobile Backdrop -->
+    <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside id="sidebar"
-      class="fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-surface-900 border-r border-surface-700/70 flex flex-col justify-between transition-transform duration-200 ease-out -translate-x-full md:translate-x-0">
-      
+    <aside id="sidebar" class="fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-surface-900 border-r border-surface-700 flex flex-col justify-between transition-transform duration-200 -translate-x-full md:translate-x-0">
       <div>
-        <div class="p-5 border-b border-surface-700/70 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white font-bold text-sm flex items-center justify-center shadow-md shadow-cyan-500/20">
-              B
-            </div>
+        <div class="p-5 border-b border-surface-700 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-cyan-600 text-white font-bold text-sm flex items-center justify-center shadow-md">B</div>
             <div>
               <h2 class="text-sm font-bold text-white tracking-tight">BNSCK Admin</h2>
-              <p class="text-[11px] text-cyan-400 font-mono">Supabase Direct</p>
+              <p class="text-[10px] text-cyan-400 font-mono">HSC 2027 Sec A</p>
             </div>
           </div>
-          <button onclick="toggleMobileSidebar()" class="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer">
-            <i data-lucide="x" class="w-5 h-5"></i>
+          <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 p-1">
+            <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
 
-        <!-- Nav items -->
+        <!-- Navigation Tabs -->
         <nav class="p-3 space-y-1">
-          <button onclick="switchTab('dashboard')" data-tab="dashboard"
-            class="nav-link w-full px-3 py-2.5 rounded-xl text-xs font-medium flex items-center gap-3 transition-colors bg-cyan-600/20 text-cyan-300 font-semibold cursor-pointer">
+          <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-3 bg-cyan-600/20 text-cyan-300">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
             <span>Dashboard</span>
           </button>
 
-          <button onclick="switchTab('students')" data-tab="students"
-            class="nav-link w-full px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 hover:text-white flex items-center justify-between transition-colors cursor-pointer">
+          <!-- TEACHERS / FACULTY MANAGEMENT -->
+          <button onclick="switchTab('teachers')" data-tab="teachers" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <i data-lucide="users" class="w-4 h-4"></i>
-              <span>Students</span>
+              <i data-lucide="graduation-cap" class="w-4 h-4 text-cyan-400"></i>
+              <span>Faculty & Mentors</span>
+            </div>
+            <span id="badgeTeachers" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-800 text-cyan-400 border border-surface-700">0</span>
+          </button>
+
+          <!-- STUDENTS MANAGEMENT -->
+          <button onclick="switchTab('students')" data-tab="students" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <i data-lucide="users" class="w-4 h-4 text-sky-400"></i>
+              <span>Students Roster</span>
             </div>
             <span id="badgeStudents" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-800 text-cyan-400 border border-surface-700">50</span>
           </button>
 
-          <button onclick="switchTab('notices')" data-tab="notices"
-            class="nav-link w-full px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 hover:text-white flex items-center justify-between transition-colors cursor-pointer">
+          <button onclick="switchTab('notices')" data-tab="notices" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <i data-lucide="bell" class="w-4 h-4"></i>
+              <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
               <span>Notices</span>
             </div>
             <span id="badgeNotices" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-800 text-cyan-400 border border-surface-700">0</span>
           </button>
 
-          <button onclick="switchTab('timeline')" data-tab="timeline"
-            class="nav-link w-full px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 hover:text-white flex items-center justify-between transition-colors cursor-pointer">
-            <div class="flex items-center gap-3">
-              <i data-lucide="calendar" class="w-4 h-4"></i>
-              <span>Timeline</span>
-            </div>
-            <span id="badgeTimeline" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-800 text-cyan-400 border border-surface-700">0</span>
+          <button onclick="switchTab('timeline')" data-tab="timeline" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center gap-3">
+            <i data-lucide="calendar" class="w-4 h-4 text-emerald-400"></i>
+            <span>Timeline</span>
           </button>
 
-          <button onclick="switchTab('capsule')" data-tab="capsule"
-            class="nav-link w-full px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 hover:text-white flex items-center justify-between transition-colors cursor-pointer">
-            <div class="flex items-center gap-3">
-              <i data-lucide="archive" class="w-4 h-4"></i>
-              <span>Time Capsule</span>
-            </div>
-            <span id="badgeCapsule" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-800 text-cyan-400 border border-surface-700">0</span>
+          <button onclick="switchTab('capsule')" data-tab="capsule" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center gap-3">
+            <i data-lucide="archive" class="w-4 h-4 text-purple-400"></i>
+            <span>Time Capsule</span>
           </button>
 
-          <button onclick="switchTab('gallery')" data-tab="gallery"
-            class="nav-link w-full px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 hover:text-white flex items-center justify-between transition-colors cursor-pointer">
-            <div class="flex items-center gap-3">
-              <i data-lucide="image" class="w-4 h-4"></i>
-              <span>Photo Gallery</span>
-            </div>
-            <span id="badgeGallery" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-800 text-cyan-400 border border-surface-700">0</span>
+          <button onclick="switchTab('gallery')" data-tab="gallery" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center gap-3">
+            <i data-lucide="image" class="w-4 h-4 text-pink-400"></i>
+            <span>Photo Gallery</span>
           </button>
 
-          <button onclick="switchTab('settings')" data-tab="settings"
-            class="nav-link w-full px-3 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 hover:text-white flex items-center gap-3 transition-colors cursor-pointer">
-            <i data-lucide="settings" class="w-4 h-4"></i>
-            <span>Settings & Keys</span>
+          <button onclick="switchTab('settings')" data-tab="settings" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center gap-3">
+            <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
+            <span>Settings & Zoho Mail</span>
           </button>
         </nav>
       </div>
 
-      <div class="p-3 border-t border-surface-700/70 space-y-2.5">
-        <div class="px-3 py-2 rounded-xl bg-surface-850/60 border border-surface-700/40 flex items-center justify-between">
-          <div class="flex items-center gap-2.5 overflow-hidden">
-            <div id="userAvatar" class="w-8 h-8 rounded-lg bg-cyan-600/30 border border-cyan-500/30 flex items-center justify-center font-bold text-xs text-cyan-300">
-              AD
-            </div>
-            <div class="truncate">
-              <div id="userName" class="text-xs font-semibold text-white truncate">Administrator</div>
-              <div id="userRole" class="text-[10px] text-cyan-400 font-mono"> Admin</div>
-            </div>
+      <div class="p-3 border-t border-surface-700 space-y-2">
+        <div class="px-3 py-2 rounded-xl bg-surface-850 flex items-center justify-between text-xs">
+          <div class="truncate">
+            <div id="userName" class="font-semibold text-white truncate">Administrator</div>
+            <!-- Developer credit link replacing plain handle -->
+            <a href="https://pulakchakma.dev.cv" target="_blank" rel="noopener noreferrer" class="text-[11px] text-cyan-400 font-mono hover:underline flex items-center gap-1 font-bold">
+              <span>Dev: Pulak Chakma</span>
+              <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+            <div class="text-[10px] text-slate-400 font-mono truncate">admin@sec-a-bnsck27.info.mp</div>
           </div>
-          <button onclick="handleLogout()" title="Sign Out" class="text-slate-400 hover:text-rose-400 p-1 rounded-lg transition-colors cursor-pointer">
+          <button onclick="handleLogout()" title="Sign Out" class="text-slate-400 hover:text-rose-400 p-1">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
-        </div>
-
-        <div class="px-3 py-2 rounded-xl bg-surface-950/60 border border-surface-800/80 text-[11px] text-slate-400 text-center">
-          Developed By: <span class="text-cyan-400 font-mono"> <a href="https://pulakchakma.dev.cv" target="_blank" rel="noopener noreferrer" class="hover:underline">Pulak chakma</a> </span>
         </div>
       </div>
     </aside>
@@ -250,586 +200,631 @@
     <main class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
       
       <!-- Top Navigation Bar -->
-      <header class="h-16 px-6 glass-panel border-b border-surface-700/70 sticky top-0 z-20 flex items-center justify-between">
+      <header class="h-16 px-6 glass-panel border-b border-surface-700 sticky top-0 z-20 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <button onclick="toggleMobileSidebar()" class="md:hidden p-2 text-slate-400 hover:text-white rounded-lg cursor-pointer">
+          <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 p-1.5 rounded-lg">
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
           <div>
-            <h2 id="topBarTitle" class="text-sm font-bold text-white tracking-tight">Dashboard Overview</h2>
-            <p id="topBarSubtitle" class="text-[11px] text-slate-400">Class Section A Supabase management console</p>
+            <h2 id="topBarTitle" class="text-sm font-bold text-white">Dashboard Overview</h2>
+            <p id="topBarSubtitle" class="text-[10px] text-slate-400">Class Section A Supabase direct management console</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <!-- Refresh Supabase Data Button -->
-          <button onclick="loadSupabaseData(true)" class="px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700/80 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer">
+        <div class="flex items-center gap-2.5">
+          <!-- One-click Zoho Mail Smart Redirect Button -->
+          <button onclick="launchZohoMail()" class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-xs font-semibold text-amber-300 flex items-center gap-1.5 transition">
+            <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+            <span>Zoho Webmail ↗</span>
+          </button>
+
+          <button onclick="loadSupabaseData(true)" class="px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition">
             <i data-lucide="refresh-cw" id="refreshIcon" class="w-3.5 h-3.5 text-cyan-400"></i>
             <span class="hidden sm:inline">Refresh DB</span>
           </button>
-          
-          <a href="https://sec-a-bnsck27.info.mp" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-cyan-600/10 hover:bg-cyan-600/20 border border-cyan-500/30 text-xs font-semibold text-cyan-300 flex items-center gap-1.5 transition-colors">
-            <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Live Website</span>
-          </a>
         </div>
       </header>
 
       <div class="p-6 md:p-8 flex-1 max-w-7xl w-full mx-auto space-y-6">
 
-        <!-- TAB 1: DASHBOARD VIEW -->
+        <!-- TAB 1: DASHBOARD -->
         <section id="tab-dashboard" class="tab-pane space-y-6 fade-in">
-          
-          <!-- Quick Stat Cards -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-5 relative overflow-hidden">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-medium text-slate-400">Total Students</span>
-                <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
-              </div>
-              <div id="statStudents" class="text-2xl font-bold text-white font-mono">50</div>
-              <div class="text-[10px] text-slate-500 mt-1">Class Roster (Science A)</div>
+            <div class="bg-surface-900 border border-surface-700 rounded-2xl p-4">
+              <span class="text-xs text-slate-400">Total Faculty</span>
+              <div id="statTeachers" class="text-2xl font-bold text-white font-mono mt-1">9</div>
+              <div class="text-[10px] text-cyan-400 mt-0.5">Principal, Class & Subject Lecturers</div>
             </div>
 
-            <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-5 relative overflow-hidden">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-medium text-slate-400">Notices Published</span>
-                <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
-              </div>
-              <div id="statNotices" class="text-2xl font-bold text-white font-mono">2</div>
-              <div class="text-[10px] text-slate-500 mt-1">Live Announcements</div>
+            <div class="bg-surface-900 border border-surface-700 rounded-2xl p-4">
+              <span class="text-xs text-slate-400">Total Students</span>
+              <div id="statStudents" class="text-2xl font-bold text-white font-mono mt-1">50</div>
+              <div class="text-[10px] text-cyan-400 mt-0.5">Section A Roster</div>
             </div>
 
-            <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-5 relative overflow-hidden">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-medium text-slate-400">Timeline Milestones</span>
-                <i data-lucide="calendar" class="w-4 h-4 text-emerald-400"></i>
-              </div>
-              <div id="statTimeline" class="text-2xl font-bold text-white font-mono">4</div>
-              <div class="text-[10px] text-slate-500 mt-1">Key academic events</div>
+            <div class="bg-surface-900 border border-surface-700 rounded-2xl p-4">
+              <span class="text-xs text-slate-400">Live Notices</span>
+              <div id="statNotices" class="text-2xl font-bold text-white font-mono mt-1">2</div>
+              <div class="text-[10px] text-amber-400 mt-0.5">9-sec Popup / Bulletins</div>
             </div>
 
-            <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-5 relative overflow-hidden">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-medium text-slate-400">Gallery Photos</span>
-                <i data-lucide="image" class="w-4 h-4 text-sky-400"></i>
-              </div>
-              <div id="statGallery" class="text-2xl font-bold text-white font-mono">3</div>
-              <div class="text-[10px] text-slate-500 mt-1">Database photos</div>
+            <div class="bg-surface-900 border border-surface-700 rounded-2xl p-4">
+              <span class="text-xs text-slate-400">Gallery Photos</span>
+              <div id="statGallery" class="text-2xl font-bold text-white font-mono mt-1">1</div>
+              <div class="text-[10px] text-purple-400 mt-0.5">Cloud Repository</div>
             </div>
           </div>
 
-          <!-- Quick Actions & Health -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Quick Actions -->
-            <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-6">
-              <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <i data-lucide="zap" class="w-4 h-4 text-cyan-400"></i>
-                <span>Quick Actions</span>
+          <!-- Quick Actions & Zoho Box -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-surface-900 border border-surface-700 rounded-2xl p-5 space-y-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+                <span>Quick Operations</span>
               </h3>
               <div class="grid grid-cols-2 gap-2.5">
-                <button onclick="openStudentModal()" class="p-3 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700/70 text-left transition-colors cursor-pointer">
-                  <i data-lucide="user-plus" class="w-4 h-4 text-cyan-400 mb-1.5"></i>
-                  <div class="text-xs font-semibold text-white">Add Student</div>
-                  <div class="text-[10px] text-slate-400">Upsert roll record</div>
+                <button onclick="openTeacherModal()" class="p-3 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-left transition">
+                  <i data-lucide="graduation-cap" class="w-4 h-4 text-cyan-400 mb-1"></i>
+                  <div class="text-xs font-bold text-white">Add Teacher</div>
+                  <div class="text-[10px] text-slate-400">Contact & subject info</div>
                 </button>
-                <button onclick="openNoticeModal()" class="p-3 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700/70 text-left transition-colors cursor-pointer">
-                  <i data-lucide="file-plus" class="w-4 h-4 text-amber-400 mb-1.5"></i>
-                  <div class="text-xs font-semibold text-white">Post Notice</div>
-                  <div class="text-[10px] text-slate-400">Popup & notice row</div>
+                <button onclick="openStudentModal()" class="p-3 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-left transition">
+                  <i data-lucide="user-plus" class="w-4 h-4 text-sky-400 mb-1"></i>
+                  <div class="text-xs font-bold text-white">Add Student</div>
+                  <div class="text-[10px] text-slate-400">Roll & phone upsert</div>
                 </button>
-                <button onclick="openTimelineModal()" class="p-3 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700/70 text-left transition-colors cursor-pointer">
-                  <i data-lucide="calendar-plus" class="w-4 h-4 text-emerald-400 mb-1.5"></i>
-                  <div class="text-xs font-semibold text-white">Add Event</div>
-                  <div class="text-[10px] text-slate-400">Milestone timeline</div>
+                <button onclick="generateStudentsPDF()" class="p-3 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-left transition">
+                  <i data-lucide="file-text" class="w-4 h-4 text-emerald-400 mb-1"></i>
+                  <div class="text-xs font-bold text-white">PDF Creator</div>
+                  <div class="text-[10px] text-slate-400">Export student list</div>
                 </button>
-                <button onclick="openGalleryModal()" class="p-3 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700/70 text-left transition-colors cursor-pointer">
-                  <i data-lucide="upload-cloud" class="w-4 h-4 text-sky-400 mb-1.5"></i>
-                  <div class="text-xs font-semibold text-white">Add Photo</div>
-                  <div class="text-[10px] text-slate-400">Direct to Supabase</div>
+                <button onclick="openNoticeModal()" class="p-3 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-left transition">
+                  <i data-lucide="bell-plus" class="w-4 h-4 text-amber-400 mb-1"></i>
+                  <div class="text-xs font-bold text-white">Post Notice</div>
+                  <div class="text-[10px] text-slate-400">9-second popup</div>
                 </button>
               </div>
             </div>
 
-            <!-- Health Checks -->
-            <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-6">
-              <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i>
-                <span>Supabase Live State</span>
+            <!-- Zoho Direct Operate Box -->
+            <div class="bg-surface-900 border border-amber-500/30 rounded-2xl p-5 space-y-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-2">
+                <i data-lucide="mail-check" class="w-4 h-4"></i>
+                <span>Zoho Mail Integration</span>
               </h3>
-              <div class="space-y-3">
-                <div class="flex items-center justify-between p-3 rounded-xl bg-surface-850 border border-surface-700/60">
-                  <div class="flex items-center gap-2.5">
-                    <div id="healthDbDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-medium text-slate-200">PostgreSQL Database</span>
-                  </div>
-                  <span id="healthDbText" class="text-[11px] font-mono text-emerald-400">Connected</span>
+              <p class="text-xs text-slate-300">Click below to auto-copy the master password and open the Zoho Mail login gateway with the admin email pre-filled.</p>
+              
+              <div class="p-3 rounded-xl bg-surface-850 border border-surface-700 space-y-1.5 font-mono text-xs">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400 text-[11px]">User ID:</span>
+                  <span class="text-cyan-300 font-semibold">admin@sec-a-bnsck27.info.mp</span>
                 </div>
-
-                <div class="flex items-center justify-between p-3 rounded-xl bg-surface-850 border border-surface-700/60">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                    <span class="text-xs font-medium text-slate-200">Publishable Key</span>
-                  </div>
-                  <span class="text-[11px] font-mono text-cyan-400">Active</span>
-                </div>
-
-                <div class="flex items-center justify-between p-3 rounded-xl bg-surface-850 border border-surface-700/60">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                    <span class="text-xs font-medium text-slate-200">Storage Bucket ('bnsck')</span>
-                  </div>
-                  <span class="text-[11px] font-mono text-emerald-400">Ready</span>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400 text-[11px]">Password:</span>
+                  <span class="text-amber-300 font-semibold">Bnsck15072025@</span>
                 </div>
               </div>
-            </div>
 
-            <!-- Activity Log -->
-            <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-6 flex flex-col justify-between">
-              <div>
-                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <i data-lucide="history" class="w-4 h-4 text-slate-400"></i>
-                  <span>Recent Admin Operations</span>
-                </h3>
-                <div id="recentActivityList" class="space-y-2.5 text-xs">
-                  <div class="flex items-start gap-2.5 text-slate-400">
-                    <div class="w-2 h-2 rounded-full bg-cyan-400 mt-1.5 shrink-0"></div>
-                    <div>
-                      <span class="text-white font-medium">Session initialized</span>
-                      <div class="text-[10px] text-slate-500">Connected directly to mqkumbvzqjolyjmwmgcf</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <button onclick="launchZohoMail()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+                <span>Copy Password & Launch Zoho Mail ↗</span>
+              </button>
             </div>
-
           </div>
         </section>
 
-        <!-- TAB 2: STUDENTS VIEW -->
+        <!-- TAB 2: FACULTY & TEACHERS (DYNAMIC CRUD) -->
+        <section id="tab-teachers" class="tab-pane hidden space-y-4 fade-in">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="relative w-full sm:w-80">
+              <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="teacherSearch" oninput="renderTeachersTable()" placeholder="Search faculty name, subject, category..."
+                class="w-full pl-9 pr-3 py-2 bg-surface-900 border border-surface-700 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400" />
+            </div>
+            <button onclick="openTeacherModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Add Faculty Member</span>
+            </button>
+          </div>
+
+          <div class="bg-surface-900 border border-surface-700 rounded-2xl overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-surface-850 border-b border-surface-700 text-slate-400 uppercase text-[10px] font-semibold">
+                  <tr>
+                    <th class="py-3 px-4">Faculty</th>
+                    <th class="py-3 px-4">Role / Category</th>
+                    <th class="py-3 px-4">Subject</th>
+                    <th class="py-3 px-4">Phone (WhatsApp)</th>
+                    <th class="py-3 px-4">Email</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="teachersTableBody" class="divide-y divide-surface-700/60"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: STUDENTS ROSTER (WITH CONTACT & PDF CREATOR) -->
         <section id="tab-students" class="tab-pane hidden space-y-4 fade-in">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3 w-full sm:w-auto">
               <div class="relative flex-1 sm:w-72">
                 <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                <input type="text" id="studentSearch" oninput="handleStudentSearch()" placeholder="Search roll, name, badge/role..."
-                  class="w-full pl-9 pr-3 py-2 bg-surface-900 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+                <input type="text" id="studentSearch" oninput="renderStudentsTable()" placeholder="Search roll, name, phone, role..."
+                  class="w-full pl-9 pr-3 py-2 bg-surface-900 border border-surface-700 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400" />
               </div>
-              <select id="studentSort" onchange="handleStudentSort()" class="px-3 py-2 bg-surface-900 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none">
-                <option value="roll_asc">Roll (Ascending)</option>
-                <option value="roll_desc">Roll (Descending)</option>
-                <option value="name_asc">Name (A-Z)</option>
-              </select>
             </div>
-            <button onclick="openStudentModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
-              <i data-lucide="plus" class="w-4 h-4"></i>
-              <span>Add Student</span>
-            </button>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <!-- PDF CREATOR BUTTON -->
+              <button onclick="generateStudentsPDF()" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                <span>Student List PDF Creator</span>
+              </button>
+
+              <button onclick="openStudentModal()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 transition cursor-pointer">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Add Student</span>
+              </button>
+            </div>
           </div>
 
-          <div class="bg-surface-900 border border-surface-700/80 rounded-2xl overflow-hidden shadow-sm">
+          <div class="bg-surface-900 border border-surface-700 rounded-2xl overflow-hidden shadow-sm">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead class="bg-surface-850/80 border-b border-surface-700/80 text-slate-400 uppercase text-[10px] font-semibold tracking-wider">
+                <thead class="bg-surface-850 border-b border-surface-700 text-slate-400 uppercase text-[10px] font-semibold">
                   <tr>
                     <th class="py-3 px-4">Photo</th>
                     <th class="py-3 px-4">Roll</th>
                     <th class="py-3 px-4">Full Name</th>
-                    <th class="py-3 px-4">Section / Group</th>
-                    <th class="py-3 px-4">Badge / Role</th>
+                    <th class="py-3 px-4">Appointment / Badge</th>
+                    <th class="py-3 px-4">Phone Number</th>
+                    <th class="py-3 px-4">Social Handles</th>
                     <th class="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="studentsTableBody" class="divide-y divide-surface-700/60">
-                </tbody>
+                <tbody id="studentsTableBody" class="divide-y divide-surface-700/60"></tbody>
               </table>
-            </div>
-
-            <!-- Pagination Bar -->
-            <div class="p-3 border-t border-surface-700/70 flex items-center justify-between text-xs text-slate-400">
-              <span id="studentPageInfo">Showing 0 of 0 entries</span>
-              <div class="flex items-center gap-1.5">
-                <button id="studentPrevBtn" onclick="changeStudentPage(-1)" class="px-2.5 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 disabled:opacity-30 cursor-pointer">Previous</button>
-                <button id="studentNextBtn" onclick="changeStudentPage(1)" class="px-2.5 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 disabled:opacity-30 cursor-pointer">Next</button>
-              </div>
             </div>
           </div>
         </section>
 
-        <!-- TAB 3: NOTICES VIEW -->
+        <!-- TAB 4: NOTICES (9-SEC POPUP READY) -->
         <section id="tab-notices" class="tab-pane hidden space-y-4 fade-in">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div class="relative w-full sm:w-80">
-              <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-              <input type="text" id="noticeSearch" oninput="renderNoticesTable()" placeholder="Search announcements..."
-                class="w-full pl-9 pr-3 py-2 bg-surface-900 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
-            </div>
-            <button onclick="openNoticeModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-white">Notice Board Bulletins</h3>
+            <button onclick="openNoticeModal()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer">
               <i data-lucide="plus" class="w-4 h-4"></i>
               <span>Create Notice</span>
             </button>
           </div>
-
-          <div class="bg-surface-900 border border-surface-700/80 rounded-2xl overflow-hidden shadow-sm">
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-surface-850/80 border-b border-surface-700/80 text-slate-400 uppercase text-[10px] font-semibold tracking-wider">
-                  <tr>
-                    <th class="py-3 px-4">Date</th>
-                    <th class="py-3 px-4">Title & Popup Flag</th>
-                    <th class="py-3 px-4">Description</th>
-                    <th class="py-3 px-4">Attachment URL</th>
-                    <th class="py-3 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="noticesTableBody" class="divide-y divide-surface-700/60">
-                </tbody>
-              </table>
-            </div>
+          <div class="bg-surface-900 border border-surface-700 rounded-2xl overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-surface-850 border-b border-surface-700 text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="py-3 px-4">Date</th>
+                  <th class="py-3 px-4">Title & 9s Popup</th>
+                  <th class="py-3 px-4">Content</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="noticesTableBody" class="divide-y divide-surface-700/60"></tbody>
+            </table>
           </div>
         </section>
 
-        <!-- TAB 4: TIMELINE VIEW -->
+        <!-- TAB 5: TIMELINE -->
         <section id="tab-timeline" class="tab-pane hidden space-y-4 fade-in">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div class="relative w-full sm:w-80">
-              <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-              <input type="text" id="timelineSearch" oninput="renderTimelineTable()" placeholder="Search milestones..."
-                class="w-full pl-9 pr-3 py-2 bg-surface-900 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
-            </div>
-            <button onclick="openTimelineModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-white">Academic Journey Milestones</h3>
+            <button onclick="openTimelineModal()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5">
               <i data-lucide="plus" class="w-4 h-4"></i>
               <span>Add Event</span>
             </button>
           </div>
-
-          <div class="bg-surface-900 border border-surface-700/80 rounded-2xl overflow-hidden shadow-sm">
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-surface-850/80 border-b border-surface-700/80 text-slate-400 uppercase text-[10px] font-semibold tracking-wider">
-                  <tr>
-                    <th class="py-3 px-4">Date</th>
-                    <th class="py-3 px-4">Milestone Title</th>
-                    <th class="py-3 px-4">Event Description</th>
-                    <th class="py-3 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="timelineTableBody" class="divide-y divide-surface-700/60">
-                </tbody>
-              </table>
-            </div>
+          <div class="bg-surface-900 border border-surface-700 rounded-2xl overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-surface-850 border-b border-surface-700 text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="py-3 px-4">Date / Period</th>
+                  <th class="py-3 px-4">Title</th>
+                  <th class="py-3 px-4">Description</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="timelineTableBody" class="divide-y divide-surface-700/60"></tbody>
+            </table>
           </div>
         </section>
 
-        <!-- TAB 5: CAPSULE VIEW -->
+        <!-- TAB 6: TIME CAPSULE -->
         <section id="tab-capsule" class="tab-pane hidden space-y-4 fade-in">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div class="relative w-full sm:w-80">
-              <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-              <input type="text" id="capsuleSearch" oninput="renderCapsuleTable()" placeholder="Search memories..."
-                class="w-full pl-9 pr-3 py-2 bg-surface-900 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
-            </div>
-            <button onclick="openCapsuleModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-white">Time Capsule Memories</h3>
+            <button onclick="openCapsuleModal()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5">
               <i data-lucide="plus" class="w-4 h-4"></i>
               <span>Add Memory</span>
             </button>
           </div>
-
-          <div class="bg-surface-900 border border-surface-700/80 rounded-2xl overflow-hidden shadow-sm">
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-surface-850/80 border-b border-surface-700/80 text-slate-400 uppercase text-[10px] font-semibold tracking-wider">
-                  <tr>
-                    <th class="py-3 px-4">Memory Title</th>
-                    <th class="py-3 px-4">Message / Story</th>
-                    <th class="py-3 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="capsuleTableBody" class="divide-y divide-surface-700/60">
-                </tbody>
-              </table>
-            </div>
+          <div class="bg-surface-900 border border-surface-700 rounded-2xl overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-surface-850 border-b border-surface-700 text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="py-3 px-4">Title</th>
+                  <th class="py-3 px-4">Memory Text</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="capsuleTableBody" class="divide-y divide-surface-700/60"></tbody>
+            </table>
           </div>
         </section>
 
-        <!-- TAB 6: GALLERY VIEW -->
+        <!-- TAB 7: PHOTO GALLERY -->
         <section id="tab-gallery" class="tab-pane hidden space-y-4 fade-in">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div class="relative w-full sm:w-80">
-              <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-              <input type="text" id="gallerySearch" oninput="renderGalleryGrid()" placeholder="Search photos..."
-                class="w-full pl-9 pr-3 py-2 bg-surface-900 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-sm font-bold text-white">Photo Repository</h3>
+              <p class="text-[11px] text-slate-400">Edit titles, captions, tags and URLs for college gallery</p>
             </div>
-            <button onclick="openGalleryModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
+            <button onclick="openGalleryModal()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer">
               <i data-lucide="upload" class="w-4 h-4"></i>
-              <span>Add Photo</span>
+              <span>Add / Edit Photo</span>
             </button>
           </div>
-
-          <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          </div>
+          <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
         </section>
 
-        <!-- TAB 7: WEBSITE SETTINGS VIEW -->
-        <section id="tab-settings" class="tab-pane hidden space-y-6 fade-in">
-          <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-6 max-w-2xl">
-            <h3 class="text-sm font-bold text-white mb-1">Global Website Parameters (Settings Table)</h3>
-            <p class="text-xs text-slate-400 mb-6">Saved directly to your Supabase `settings` table.</p>
-
-            <form onsubmit="handleSaveSettings(event)" class="space-y-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1.5">Official College / Batch Logo</label>
-                <div class="flex items-center gap-4">
-                  <div class="w-16 h-16 rounded-xl bg-surface-850 border border-surface-700 flex items-center justify-center overflow-hidden shrink-0">
-                    <img id="settingsLogoPreview" src="https://apiimage.astutebd.com/Uploads/bnsck/maincampus/About%20School//1072021113810AMzx.png" class="w-full h-full object-contain p-1" />
-                    <span id="settingsLogoPlaceholder" class="text-xs text-slate-500 font-mono hidden">No Logo</span>
-                  </div>
-                  <div class="space-y-1.5 flex-1">
-                    <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleLogoUpload(event)" />
-                    <button type="button" id="logoUploadBtn" onclick="document.getElementById('logoFileInput').click()"
-                      class="px-3 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 border border-surface-700 text-xs text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer">
-                      <i data-lucide="upload" class="w-3.5 h-3.5 text-cyan-400"></i>
-                      <span>Upload to Supabase Storage</span>
-                    </button>
-                    <input type="text" id="settingLogoUrl" value="https://apiimage.astutebd.com/Uploads/bnsck/maincampus/About%20School//1072021113810AMzx.png" placeholder="Direct Logo URL" class="w-full px-3 py-1.5 bg-surface-850 border border-surface-700/80 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none font-mono text-[11px]" />
-                  </div>
+        <!-- TAB 8: SETTINGS & ZOHO -->
+        <section id="tab-settings" class="tab-pane hidden space-y-6 fade-in max-w-3xl">
+          <div class="bg-surface-900 border border-surface-700 rounded-2xl p-6 space-y-4">
+            <h3 class="text-sm font-bold text-white">Zoho Mail Single-Click Console</h3>
+            <p class="text-xs text-slate-400">Launch Zoho Mail directly with the official domain ID pre-filled. Only password entry is required.</p>
+            
+            <div class="p-4 rounded-xl bg-surface-850 border border-surface-700 space-y-3 text-xs">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] text-slate-400 font-mono">ACCOUNT USER ID</div>
+                  <div class="text-cyan-300 font-bold font-mono">admin@sec-a-bnsck27.info.mp</div>
                 </div>
+                <button onclick="copyToClipboard('admin@sec-a-bnsck27.info.mp', 'User ID copied!')" class="px-2.5 py-1 rounded bg-surface-800 text-slate-300 text-[11px] hover:text-white">Copy ID</button>
               </div>
 
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Website Headline / Title</label>
-                <input type="text" id="settingSiteTitle" value="BNSCK HSC 2027 Science Section A" placeholder="BNSCK HSC 2027 Science Section A"
-                  class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Running Marquee / Bulletin Text</label>
-                <textarea id="settingNoticeBar" rows="3" placeholder="Important announcement shown across the bulletin..."
-                  class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400">Welcome to BNSCK HSC 2027 Science Section A Portal! Located at BNS Shaheed Moazzam, Kaptai.</textarea>
-              </div>
-
-              <button type="submit" id="saveSettingsBtn"
-                class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors flex items-center gap-2 cursor-pointer">
-                <i data-lucide="save" class="w-3.5 h-3.5"></i>
-                <span>Save to Supabase Settings</span>
-              </button>
-            </form>
-          </div>
-
-          <!-- Supabase Connection Details Panel -->
-          <div class="bg-surface-900 border border-surface-700/80 rounded-2xl p-6 max-w-2xl">
-            <h3 class="text-sm font-bold text-white mb-1">Supabase Project Configuration</h3>
-            <p class="text-xs text-slate-400 mb-4">Credentials currently powering this direct database session.</p>
-
-            <div class="space-y-3 text-xs">
-              <div>
-                <label class="block font-medium text-slate-400 mb-1">Supabase Project URL</label>
-                <input type="text" id="configSupabaseUrl" readonly class="w-full px-3 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-cyan-300 font-mono text-[11px] focus:outline-none" />
-              </div>
-
-              <div>
-                <label class="block font-medium text-slate-400 mb-1">Supabase Publishable Key</label>
-                <input type="text" id="configSupabaseKey" readonly class="w-full px-3 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-cyan-300 font-mono text-[11px] focus:outline-none" />
-              </div>
-
-              <div>
-                <label class="block font-medium text-slate-400 mb-1">Storage Bucket Name</label>
-                <input type="text" id="configStorageBucket" value="bnsck" class="w-full px-3 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-white font-mono text-[11px] focus:outline-none" />
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] text-slate-400 font-mono">MASTER PASSWORD</div>
+                  <div class="text-amber-300 font-bold font-mono">Bnsck15072025@</div>
+                </div>
+                <button onclick="copyToClipboard('Bnsck15072025@', 'Password copied!')" class="px-2.5 py-1 rounded bg-surface-800 text-slate-300 text-[11px] hover:text-white">Copy Password</button>
               </div>
             </div>
-          </div>
 
-          <!-- Admin Portal Operate Mail Account Card -->
-          <div class="md:col-span-3 space-y-2 max-w-2xl">
-            <h3 class="text-xs uppercase font-bold text-white tracking-wider">admin portal</h3>
-            <div class="p-4 rounded-2xl glass-panel border border-cyan-400/30 text-xs space-y-3 shadow-lg">
-              <p class="text-slate-300 font-semibold flex items-center gap-1.5">
-                <i data-lucide="mail" class="w-3.5 h-3.5 text-cyan-400"></i>
-                <span>operate mail account :</span>
-              </p> 
-              
-              <!-- Copyable Credentials Area -->
-              <div class="space-y-2 font-mono text-xs">
-                <!-- User ID Row -->
-                <div class="flex items-center justify-between p-2 rounded-xl bg-surface-850/80 border border-surface-700/70">
-                  <div class="truncate mr-2">
-                    <span class="text-slate-400 font-sans text-[11px] block">User ID:</span>
-                    <span id="credUserId" class="text-cyan-300 select-all font-semibold">admin@sec-a-bnsck27.info.mp</span>
-                  </div>
-                  <button type="button" onclick="copyCredential('admin@sec-a-bnsck27.info.mp', this, 'User ID')" class="px-2.5 py-1 rounded-lg bg-surface-800 hover:bg-cyan-600/20 border border-surface-700 hover:border-cyan-400/50 text-slate-300 hover:text-cyan-300 flex items-center gap-1.5 shrink-0 transition-colors text-[11px] font-sans cursor-pointer">
-                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                    <span>Copy</span>
-                  </button>
-                </div>
-
-                <!-- Password Row -->
-                <div class="flex items-center justify-between p-2 rounded-xl bg-surface-850/80 border border-surface-700/70">
-                  <div class="truncate mr-2">
-                    <span class="text-slate-400 font-sans text-[11px] block">Password:</span>
-                    <span id="credPassword" class="text-amber-300 select-all font-semibold">Bnsck15072025@</span>
-                  </div>
-                  <button type="button" onclick="copyCredential('Bnsck15072025@', this, 'Password')" class="px-2.5 py-1 rounded-lg bg-surface-800 hover:bg-amber-600/20 border border-surface-700 hover:border-amber-400/50 text-slate-300 hover:text-amber-300 flex items-center gap-1.5 shrink-0 transition-colors text-[11px] font-sans cursor-pointer">
-                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                    <span>Copy</span>
-                  </button>
-                </div>
-              </div>
-
-              <a href="https://accounts.zoho.com/signin?servicename=VirtualOffice&signupurl=https://www.zoho.com/mail/signup.html&serviceurl=https://mail.zoho.com" target="_blank" rel="noopener noreferrer" class="text-cyan-300 font-bold text-base hover:underline inline-flex items-center gap-1 drop-shadow-[0_0_8px_rgba(0,229,255,0.6)]">
-                <span>login ↗</span>
-              </a>
-              <div class="text-[11px] text-slate-400 font-sans tracking-wide">admin has no restriction</div>
-            </div>
+            <button onclick="launchZohoMail()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer">
+              <i data-lucide="external-link" class="w-4 h-4"></i>
+              <span>Launch Zoho Mail Platform ↗</span>
+            </button>
           </div>
         </section>
 
       </div>
     </main>
-            
   </div>
 
-  <!-- STUDENT MODAL -->
-  <div id="studentModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl fade-in max-h-[90vh] flex flex-col">
+  <!-- TEACHER MODAL (DYNAMIC CRUD) -->
+  <div id="teacherModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
       <div class="px-6 py-4 border-b border-surface-700 flex items-center justify-between">
-        <h3 id="studentModalTitle" class="text-sm font-semibold text-white">Add Student</h3>
-        <button onclick="closeStudentModal()" class="text-slate-400 hover:text-white p-1 cursor-pointer">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <h3 id="teacherModalTitle" class="text-sm font-semibold text-white">Add Faculty Member</h3>
+        <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-white">✕</button>
       </div>
 
-      <form id="studentForm" onsubmit="handleSaveStudent(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
-        <input type="hidden" id="studentOriginalRoll" />
-        
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Roll Number (01–50) *</label>
-            <input type="text" id="studentRoll" required placeholder="01"
-              class="w-full px-3 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Section *</label>
-            <input type="text" id="studentSection" required value="A" placeholder="A"
-              class="w-full px-3 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
-          </div>
-        </div>
+      <form id="teacherForm" onsubmit="handleSaveTeacher(event)" class="p-6 space-y-3.5 overflow-y-auto flex-1 text-xs">
+        <input type="hidden" id="teacherOriginalId" />
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Full Name *</label>
-            <input type="text" id="studentName" required placeholder="Student Name"
-              class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+            <label class="block font-semibold text-slate-400 mb-1">Full Name *</label>
+            <input type="text" id="teacherName" required placeholder="Md. Teacher Sir"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Group *</label>
-            <input type="text" id="studentGroup" value="Science" required placeholder="Science"
-              class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+            <label class="block font-semibold text-slate-400 mb-1">Category *</label>
+            <select id="teacherCategory" class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400">
+              <option value="Principal">Principal</option>
+              <option value="Deputy Principal">Vice Principal</option>
+              <option value="Class Teacher">Section A Class Teacher</option>
+              <option value="Subject Teacher" selected>Subject Teacher</option>
+            </select>
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Badge / Role / Appointment</label>
-          <input type="text" id="studentTitle" placeholder="Class Captain / Bus Captain / Deputy Captain"
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Designation</label>
+            <input type="text" id="teacherDesignation" placeholder="Lecturer in Physics"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Subject</label>
+            <input type="text" id="teacherSubject" placeholder="Physics / Biology"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+          </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Student Bio</label>
-          <input type="text" id="studentBio" value="Member of HSC 2027 Science Section A, Kaptai."
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+        <!-- Contact & Email -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Phone / WhatsApp</label>
+            <input type="text" id="teacherPhone" placeholder="017XXXXXXXX"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Official Email</label>
+            <input type="email" id="teacherEmail" placeholder="teacher@bnsck.edu.bd"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+          </div>
         </div>
 
+        <!-- Social Media Links -->
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Facebook URL</label>
+            <input type="url" id="teacherFb" placeholder="https://facebook.com/..."
+              class="w-full px-2.5 py-1.5 bg-surface-850 border border-surface-700 rounded-lg text-white text-[11px] focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">WhatsApp No</label>
+            <input type="text" id="teacherWa" placeholder="+88017..."
+              class="w-full px-2.5 py-1.5 bg-surface-850 border border-surface-700 rounded-lg text-white text-[11px] focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Instagram URL</label>
+            <input type="url" id="teacherInsta" placeholder="https://instagram.com/..."
+              class="w-full px-2.5 py-1.5 bg-surface-850 border border-surface-700 rounded-lg text-white text-[11px] focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Direct Storage Image Upload for Faculty -->
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Photo URL (photo_url)</label>
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-xl bg-surface-850 border border-surface-700 overflow-hidden flex items-center justify-center shrink-0">
-              <img id="studentPhotoPreview" src="" class="w-full h-full object-cover hidden" />
-              <i id="studentPhotoIcon" data-lucide="user" class="w-6 h-6 text-slate-600"></i>
+          <label class="block font-semibold text-slate-400 mb-1">Faculty Photo (Upload or Direct URL)</label>
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-xl bg-surface-850 border border-surface-700 flex items-center justify-center overflow-hidden shrink-0">
+              <img id="teacherPhotoPreview" src="" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('teacherPhotoFallback').classList.remove('hidden');">
+              <span id="teacherPhotoFallback" class="text-cyan-400 font-bold text-xs font-mono">T</span>
             </div>
             <div class="flex-1 space-y-1.5">
-              <input type="file" id="studentPhotoFile" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'students', onStudentPhotoUploaded, 'saveStudentBtn')" />
-              <button type="button" id="studentUploadBtn" onclick="document.getElementById('studentPhotoFile').click()"
-                class="px-3 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 border border-surface-700 text-xs text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer">
+              <input type="file" id="teacherFileInput" accept="image/*" class="hidden" onchange="handleStorageUpload(event, 'teachers', 'teacherPhotoUrl', 'teacherPhotoPreview', 'saveTeacherBtn')" />
+              <button type="button" onclick="document.getElementById('teacherFileInput').click()" class="px-3 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 border border-surface-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
                 <i data-lucide="upload" class="w-3.5 h-3.5 text-cyan-400"></i>
-                <span>Upload Image</span>
+                <span>Upload to Supabase Storage</span>
               </button>
-              <input type="text" id="studentPhotoUrl" placeholder="Direct Image URL"
-                class="w-full px-3 py-1.5 bg-surface-850 border border-surface-700/80 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none font-mono text-[11px]" />
+              <input type="text" id="teacherPhotoUrl" placeholder="Direct Image URL (auto-filled on upload)" oninput="updatePreviewImage('teacherPhotoPreview', this.value, 'teacherPhotoFallback')"
+                class="w-full px-3 py-1.5 bg-surface-850 border border-surface-700 rounded-xl text-white font-mono text-[11px] focus:outline-none focus:border-cyan-400" />
             </div>
           </div>
         </div>
 
-        <div class="pt-4 border-t border-surface-700 flex justify-end gap-3">
-          <button type="button" onclick="closeStudentModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-medium cursor-pointer">Cancel</button>
-          <button type="submit" id="saveStudentBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer">
-            <span>Save to Supabase</span>
-          </button>
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Message to Section A</label>
+          <textarea id="teacherMessage" rows="3" placeholder="Message or quote..."
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-surface-700 flex justify-end gap-2">
+          <button type="button" onclick="closeTeacherModal()" class="px-4 py-2 text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" id="saveTeacherBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">Save Faculty</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- NOTICE MODAL -->
-  <div id="noticeModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl fade-in max-h-[90vh] flex flex-col">
+  <!-- STUDENT MODAL (WITH CONTACT & SOCIAL LINKS + DIRECT STORAGE UPLOAD) -->
+  <div id="studentModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
       <div class="px-6 py-4 border-b border-surface-700 flex items-center justify-between">
-        <h3 id="noticeModalTitle" class="text-sm font-semibold text-white">Create Notice</h3>
-        <button onclick="closeNoticeModal()" class="text-slate-400 hover:text-white p-1 cursor-pointer">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <h3 id="studentModalTitle" class="text-sm font-semibold text-white">Student Details</h3>
+        <button onclick="closeStudentModal()" class="text-slate-400 hover:text-white">✕</button>
       </div>
 
-      <form id="noticeForm" onsubmit="handleSaveNotice(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
-        <input type="hidden" id="noticeOriginalId" />
-        
-        <div class="grid grid-cols-2 gap-4">
+      <form id="studentForm" onsubmit="handleSaveStudent(event)" class="p-6 space-y-3.5 overflow-y-auto flex-1 text-xs">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Notice Title *</label>
-            <input type="text" id="noticeTitle" required placeholder="Academic Announcement"
-              class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400" />
+            <label class="block font-semibold text-slate-400 mb-1">Roll Number (01–50) *</label>
+            <input type="text" id="studentRoll" required placeholder="01"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Popup Alert? *</label>
-            <select id="noticePopup" class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400">
-              <option value="">No (Standard Bulletin Feed)</option>
-              <option value="pop up">pop up (Auto 5-Second Popup)</option>
-              <option value="yes">yes</option>
+            <label class="block font-semibold text-slate-400 mb-1">Full Name *</label>
+            <input type="text" id="studentName" required placeholder="Student Name"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Badge / Appointment (Captain / Bus Captain)</label>
+          <input type="text" id="studentRole" placeholder="Class Captain / Bus Captain"
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+
+        <!-- Student Phone & Email -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Student Contact Number</label>
+            <input type="text" id="studentPhone" placeholder="018XXXXXXXX"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Student Email Address</label>
+            <input type="email" id="studentEmail" placeholder="student@example.com"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+          </div>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Facebook</label>
+            <input type="url" id="studentFb" placeholder="https://..."
+              class="w-full px-2.5 py-1.5 bg-surface-850 border border-surface-700 rounded-lg text-white text-[11px] focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">WhatsApp</label>
+            <input type="text" id="studentWa" placeholder="+88018..."
+              class="w-full px-2.5 py-1.5 bg-surface-850 border border-surface-700 rounded-lg text-white text-[11px] focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-400 mb-1">Instagram</label>
+            <input type="url" id="studentInsta" placeholder="https://..."
+              class="w-full px-2.5 py-1.5 bg-surface-850 border border-surface-700 rounded-lg text-white text-[11px] focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Direct Storage Image Upload for Students -->
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Student Photo (Upload or Direct URL)</label>
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-xl bg-surface-850 border border-surface-700 flex items-center justify-center overflow-hidden shrink-0">
+              <img id="studentPhotoPreview" src="" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('studentPhotoFallback').classList.remove('hidden');">
+              <span id="studentPhotoFallback" class="text-cyan-400 font-bold text-xs font-mono">Roll</span>
+            </div>
+            <div class="flex-1 space-y-1.5">
+              <input type="file" id="studentFileInput" accept="image/*" class="hidden" onchange="handleStorageUpload(event, 'students', 'studentPhotoUrl', 'studentPhotoPreview', 'saveStudentBtn')" />
+              <button type="button" onclick="document.getElementById('studentFileInput').click()" class="px-3 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 border border-surface-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="upload" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>Upload to Supabase Storage</span>
+              </button>
+              <input type="text" id="studentPhotoUrl" placeholder="Direct Image URL (auto-filled on upload)" oninput="updatePreviewImage('studentPhotoPreview', this.value, 'studentPhotoFallback')"
+                class="w-full px-3 py-1.5 bg-surface-850 border border-surface-700 rounded-xl text-white font-mono text-[11px] focus:outline-none focus:border-cyan-400" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Bio / Memo</label>
+          <input type="text" id="studentBio" value="Member of HSC 2027 Science Section A, Kaptai."
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+
+        <div class="pt-3 border-t border-surface-700 flex justify-end gap-2">
+          <button type="button" onclick="closeStudentModal()" class="px-4 py-2 text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" id="saveStudentBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOTICE MODAL (9-SEC POPUP READY + ATTACHMENT UPLOAD) -->
+  <div id="noticeModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-surface-700 pb-3">
+        <h3 id="noticeModalTitle" class="text-sm font-semibold text-white">Create / Edit Notice</h3>
+        <button onclick="closeNoticeModal()" class="text-slate-400 hover:text-white cursor-pointer">✕</button>
+      </div>
+      <form id="noticeForm" onsubmit="handleSaveNotice(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="noticeOriginalId" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Notice Title *</label>
+            <input type="text" id="noticeTitle" required class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Trigger 9-Sec Pop Up? *</label>
+            <select id="noticePopup" class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400">
+              <option value="">No (Standard Feed)</option>
+              <option value="pop up">pop up (Auto 9-Second Modal)</option>
             </select>
           </div>
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Date / Tag *</label>
-          <input type="text" id="noticeDate" required placeholder="Announcement / Current Bulletin"
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400" />
+          <label class="block text-slate-400 mb-1">Date Tag</label>
+          <input type="text" id="noticeDate" value="Current Bulletin" class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Notice Content / Description *</label>
-          <textarea id="noticeDescription" rows="4" required placeholder="Detailed notice content..."
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"></textarea>
+          <label class="block text-slate-400 mb-1">Content / Description</label>
+          <textarea id="noticeDesc" rows="3" class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400"></textarea>
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Attachment URL / Image Link</label>
-          <div class="flex items-center gap-3">
-            <input type="file" id="noticeFile" accept="image/*,.pdf" class="hidden" onchange="handleImageUpload(event, 'notices', onNoticePhotoUploaded, 'saveNoticeBtn')" />
-            <button type="button" onclick="document.getElementById('noticeFile').click()"
-              class="px-3 py-1.5 rounded-lg bg-surface-850 hover:bg-surface-800 border border-surface-700 text-xs text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer">
+          <label class="block text-slate-400 mb-1">Attachment / Link URL (Upload or Paste Link)</label>
+          <div class="flex items-center gap-2">
+            <input type="file" id="noticeFileInput" accept="image/*,.pdf" class="hidden" onchange="handleStorageUpload(event, 'notices', 'noticeUrl', null, 'saveNoticeBtn')" />
+            <button type="button" onclick="document.getElementById('noticeFileInput').click()" class="px-3 py-2 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 shrink-0 cursor-pointer">
               <i data-lucide="upload" class="w-3.5 h-3.5 text-cyan-400"></i>
               <span>Upload File</span>
             </button>
-            <input type="text" id="noticeUrl" placeholder="https://..."
-              class="flex-1 px-3 py-1.5 bg-surface-850 border border-surface-700/80 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none font-mono text-[11px]" />
+            <input type="text" id="noticeUrl" placeholder="https://... (auto-filled on upload)" class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white font-mono text-[11px] focus:outline-none focus:border-cyan-400" />
+          </div>
+        </div>
+        <div class="pt-3 border-t border-surface-700 flex justify-end gap-2">
+          <button type="button" onclick="closeNoticeModal()" class="px-4 py-2 text-slate-400 hover:text-white cursor-pointer">Cancel</button>
+          <button type="submit" id="saveNoticeBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold cursor-pointer">Save Notice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- GALLERY PHOTO MODAL (DIRECT STORAGE UPLOAD + EDIT SYSTEM) -->
+  <div id="galleryModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-surface-700 pb-3">
+        <h3 id="galleryModalTitle" class="text-sm font-semibold text-white">Add / Edit Photo</h3>
+        <button onclick="closeGalleryModal()" class="text-slate-400 hover:text-white cursor-pointer">✕</button>
+      </div>
+      <form id="galleryForm" onsubmit="handleSaveGallery(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="galleryOriginalId" />
+        
+        <div>
+          <label class="block text-slate-400 mb-1">Photo Title *</label>
+          <input type="text" id="galleryTitle" required placeholder="e.g. Campus Vista / Lab Session" 
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">Album / Tag</label>
+            <input type="text" id="galleryTag" placeholder="CAMPUS / ACADEMICS / ROOTS" value="CAMPUS"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400 uppercase font-mono" />
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Display Order</label>
+            <input type="number" id="galleryOrder" placeholder="1" value="1"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
           </div>
         </div>
 
-        <div class="pt-4 border-t border-surface-700 flex justify-end gap-3">
-          <button type="button" onclick="closeNoticeModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-medium cursor-pointer">Cancel</button>
-          <button type="submit" id="saveNoticeBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer">
-            <span>Save Notice</span>
-          </button>
+        <!-- Direct Storage Image Upload for Gallery -->
+        <div>
+          <label class="block text-slate-400 mb-1">Photo Image (Upload directly to Supabase Storage)</label>
+          <div class="border-2 border-dashed border-surface-700 hover:border-cyan-400 rounded-2xl p-3.5 text-center cursor-pointer transition-colors bg-surface-850/50 mb-2"
+            onclick="document.getElementById('galleryFileInput').click()">
+            <input type="file" id="galleryFileInput" accept="image/*" class="hidden" onchange="handleStorageUpload(event, 'gallery', 'galleryUrl', 'galleryLiveImg', 'saveGalleryBtn')" />
+            <i data-lucide="upload-cloud" class="w-6 h-6 text-cyan-400 mx-auto mb-1"></i>
+            <p class="text-xs font-semibold text-white">Click to upload photo</p>
+            <p class="text-[10px] text-slate-400">Stores directly to bucket 'bnsck'</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="url" id="galleryUrl" required placeholder="https://... (auto-filled on upload)" oninput="updateGalleryPreview(this.value)"
+              class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white font-mono text-[11px] focus:outline-none focus:border-cyan-400" />
+          </div>
+        </div>
+
+        <!-- Live Preview Thumbnail -->
+        <div id="galleryPreviewWrapper" class="h-32 rounded-xl border border-surface-700 bg-surface-850 overflow-hidden flex items-center justify-center">
+          <img id="galleryLiveImg" src="" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('galleryPreviewPlc').classList.remove('hidden');" />
+          <span id="galleryPreviewPlc" class="text-slate-500 font-mono text-[11px]">Upload or enter URL to preview</span>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1">Photo Caption & Story</label>
+          <textarea id="galleryDesc" rows="3" placeholder="Description of this memory..."
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-surface-700 flex justify-end gap-2">
+          <button type="button" onclick="closeGalleryModal()" class="px-4 py-2 text-slate-400 hover:text-white cursor-pointer">Cancel</button>
+          <button type="submit" id="saveGalleryBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold cursor-pointer">Save Photo</button>
         </div>
       </form>
     </div>
@@ -837,40 +832,31 @@
 
   <!-- TIMELINE MODAL -->
   <div id="timelineModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl fade-in">
-      <div class="px-6 py-4 border-b border-surface-700 flex items-center justify-between">
-        <h3 id="timelineModalTitle" class="text-sm font-semibold text-white">Add Timeline Event</h3>
-        <button onclick="closeTimelineModal()" class="text-slate-400 hover:text-white p-1 cursor-pointer">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-surface-700 pb-3">
+        <h3 id="timelineModalTitle" class="text-sm font-semibold text-white">Add / Edit Milestone</h3>
+        <button onclick="closeTimelineModal()" class="text-slate-400 hover:text-white">✕</button>
       </div>
-
-      <form id="timelineForm" onsubmit="handleSaveTimeline(event)" class="p-6 space-y-4">
+      <form id="timelineForm" onsubmit="handleSaveTimeline(event)" class="space-y-3.5 text-xs">
         <input type="hidden" id="timelineOriginalId" />
-        
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Date / Period (e.g. 2025–2026) *</label>
+          <label class="block text-slate-400 mb-1">Date / Period (e.g. Mid 2025) *</label>
           <input type="text" id="timelineDate" required placeholder="Mid 2025"
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Milestone Title *</label>
-          <input type="text" id="timelineTitle" required placeholder="Inauguration of College Life"
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+          <label class="block text-slate-400 mb-1">Milestone Title *</label>
+          <input type="text" id="timelineTitle" required placeholder="Event title"
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Milestone Description *</label>
-          <textarea id="timelineDesc" rows="3" required placeholder="Description of this academic milestone..."
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"></textarea>
+          <label class="block text-slate-400 mb-1">Description *</label>
+          <textarea id="timelineDesc" rows="3" required placeholder="Milestone description..."
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400"></textarea>
         </div>
-
-        <div class="pt-4 border-t border-surface-700 flex justify-end gap-3">
-          <button type="button" onclick="closeTimelineModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-medium cursor-pointer">Cancel</button>
-          <button type="submit" id="saveTimelineBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer">
-            <span>Save Milestone</span>
-          </button>
+        <div class="pt-3 border-t border-surface-700 flex justify-end gap-2">
+          <button type="button" onclick="closeTimelineModal()" class="px-4 py-2 text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" id="saveTimelineBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">Save Milestone</button>
         </div>
       </form>
     </div>
@@ -878,120 +864,49 @@
 
   <!-- CAPSULE MODAL -->
   <div id="capsuleModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl fade-in">
-      <div class="px-6 py-4 border-b border-surface-700 flex items-center justify-between">
-        <h3 id="capsuleModalTitle" class="text-sm font-semibold text-white">Add Capsule Memory</h3>
-        <button onclick="closeCapsuleModal()" class="text-slate-400 hover:text-white p-1 cursor-pointer">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-surface-700 pb-3">
+        <h3 id="capsuleModalTitle" class="text-sm font-semibold text-white">Add / Edit Capsule Memory</h3>
+        <button onclick="closeCapsuleModal()" class="text-slate-400 hover:text-white">✕</button>
       </div>
-
-      <form id="capsuleForm" onsubmit="handleSaveCapsule(event)" class="p-6 space-y-4">
+      <form id="capsuleForm" onsubmit="handleSaveCapsule(event)" class="space-y-3.5 text-xs">
         <input type="hidden" id="capsuleOriginalId" />
-        
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Memory Title *</label>
-          <input type="text" id="capsuleTitle" required placeholder="Lake Breeze & Rainy Afternoons"
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400" />
+          <label class="block text-slate-400 mb-1">Memory Title *</label>
+          <input type="text" id="capsuleTitle" required placeholder="e.g. Kaptai Lake Morning"
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400" />
         </div>
-
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Recollection / Story *</label>
-          <textarea id="capsuleDesc" rows="4" required placeholder="Write the memory details..."
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"></textarea>
+          <label class="block text-slate-400 mb-1">Memory Story *</label>
+          <textarea id="capsuleDesc" rows="4" required placeholder="Archived memory text..."
+            class="w-full px-3 py-2 bg-surface-850 border border-surface-700 rounded-xl text-white focus:outline-none focus:border-cyan-400"></textarea>
         </div>
-
-        <div class="pt-4 border-t border-surface-700 flex justify-end gap-3">
-          <button type="button" onclick="closeCapsuleModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-medium cursor-pointer">Cancel</button>
-          <button type="submit" id="saveCapsuleBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer">
-            <span>Save Memory</span>
-          </button>
+        <div class="pt-3 border-t border-surface-700 flex justify-end gap-2">
+          <button type="button" onclick="closeCapsuleModal()" class="px-4 py-2 text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" id="saveCapsuleBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">Save Memory</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- GALLERY MODAL -->
-  <div id="galleryModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl fade-in">
-      <div class="px-6 py-4 border-b border-surface-700 flex items-center justify-between">
-        <h3 id="galleryModalTitle" class="text-sm font-semibold text-white">Upload Gallery Image</h3>
-        <button onclick="closeGalleryModal()" class="text-slate-400 hover:text-white p-1 cursor-pointer">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+  <!-- CUSTOM IN-APP CONFIRMATION MODAL -->
+  <div id="confirmModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
+      <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 mx-auto flex items-center justify-center border border-rose-500/30">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
       </div>
-
-      <form id="galleryForm" onsubmit="handleSaveGallery(event)" class="p-6 space-y-4">
-        <input type="hidden" id="galleryOriginalId" />
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Upload Image (Direct to Supabase)</label>
-          <div class="border-2 border-dashed border-surface-700 hover:border-cyan-400 rounded-2xl p-4 text-center cursor-pointer transition-colors bg-surface-850/50"
-            onclick="document.getElementById('galleryFile').click()">
-            <input type="file" id="galleryFile" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'gallery', onGalleryPhotoUploaded, 'saveGalleryBtn')" />
-            <div id="galleryUploadBox">
-              <i data-lucide="cloud-upload" class="w-7 h-7 text-cyan-400 mx-auto mb-1.5"></i>
-              <p class="text-xs font-semibold text-white">Click to browse image</p>
-              <p class="text-[10px] text-slate-500 mt-0.5">Bucket 'bnsck'</p>
-            </div>
-            <div id="galleryFilePreviewContainer" class="hidden">
-              <img id="galleryFilePreview" src="" class="max-h-36 mx-auto rounded-xl shadow-md" />
-              <p class="text-[11px] text-cyan-400 mt-1.5 font-medium">Uploaded to Supabase!</p>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Image URL *</label>
-          <input type="text" id="galleryImageUrl" required placeholder="https://..."
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none font-mono text-[11px]" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Title *</label>
-            <input type="text" id="galleryTitle" required placeholder="Campus Vista"
-              class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Album Tag</label>
-            <input type="text" id="galleryTag" placeholder="CAMPUS / ACADEMICS"
-              class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1.5">Description</label>
-          <input type="text" id="galleryDescription" placeholder="Section A memory details..."
-            class="w-full px-3.5 py-2 bg-surface-850 border border-surface-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400" />
-        </div>
-
-        <div class="pt-4 border-t border-surface-700 flex justify-end gap-3">
-          <button type="button" onclick="closeGalleryModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-xs font-medium cursor-pointer">Cancel</button>
-          <button type="submit" id="saveGalleryBtn" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer">
-            <span>Save Photo</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- CONFIRMATION DIALOG -->
-  <div id="confirmDialog" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-surface-900 border border-rose-500/30 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl p-6 text-center fade-in">
-      <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-3">
-        <i data-lucide="trash-2" class="w-6 h-6"></i>
+      <div>
+        <h4 id="confirmModalTitle" class="text-sm font-bold text-white">Confirm Action</h4>
+        <p id="confirmModalDesc" class="text-xs text-slate-400 mt-1">Are you sure you want to proceed?</p>
       </div>
-      <h4 id="confirmTitle" class="text-sm font-bold text-white mb-1">Confirm Deletion</h4>
-      <p id="confirmMessage" class="text-xs text-slate-400 mb-5">Are you sure you want to delete this entry? This will update Supabase immediately.</p>
-      <div class="flex items-center justify-center gap-3">
-        <button type="button" onclick="closeConfirmDialog()" class="px-4 py-2 rounded-xl bg-surface-850 hover:bg-surface-800 text-slate-300 text-xs font-medium cursor-pointer">Cancel</button>
-        <button type="button" id="confirmProceedBtn" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold cursor-pointer">Delete Entry</button>
+      <div class="flex items-center justify-center gap-2 pt-2">
+        <button type="button" onclick="closeConfirmModal()" class="px-4 py-2 rounded-xl bg-surface-800 hover:bg-surface-700 text-slate-300 text-xs font-semibold">Cancel</button>
+        <button type="button" id="confirmModalActionBtn" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold">Confirm Delete</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Container -->
+  <!-- Toast Notice Container -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <script>
@@ -1003,199 +918,76 @@
 
     let supabaseClient = null;
 
-    // Local reactive cache
     const state = {
       user: null,
-      activeTab: 'dashboard',
       data: {
-        students: Array.from({ length: 50 }, (_, i) => {
-          const roll = String(i + 1).padStart(2, '0');
-          let role = "";
-          if (roll === "01") role = "Class Captain";
-          else if (roll === "02") role = "Deputy Captain";
-          else if (roll === "03") role = "Bus Captain";
-          return {
-            roll: roll,
-            name: `Classmate Roll ${roll}`,
-            role: role,
-            photo_url: "",
-            bio: "Member of HSC 2027 Science Section A, Kaptai.",
-            student_group: "Science",
-            section: "A"
-          };
-        }),
-        notices: [
-          {
-            id: 1,
-            title: "Welcome to BNSCK HSC 2027 Science Section A Portal",
-            description: "Official digital capsule, classmate records, academic milestones, and class bulletin board for Section A at BNS Shaheed Moazzam, Kaptai.",
-            url: "https://bnsck.edu.bd",
-            popup: "pop up",
-            date: "Current Bulletin"
-          },
-          {
-            id: 2,
-            title: "Laboratory Practical Sessions Scheduled",
-            description: "All students are requested to complete physics optics experiments and chemistry titration notebooks for faculty review.",
-            url: "",
-            popup: "",
-            date: "Academic Notice"
-          }
-        ],
-        timeline: [
-          { id: 1, date: "Mid 2025", title: "Inauguration of College Life at Kaptai", description: "Beginning our higher secondary journey at BNS Shaheed Moazzam as Science Section A." },
-          { id: 2, date: "2025 – 2026", title: "Practical Laboratories & Examinations", description: "Physics apparatus, chemistry titration benches, and biological dissections under mountain breezes." },
-          { id: 3, date: "2026 – 2027", title: "Test Examinations & Final HSC Prep", description: "Rigorous study sessions, group discussions, and batch solidarity before board examinations." },
-          { id: 4, date: "2027", title: "HSC 2027 Board Examinations", description: "Appearing for the higher secondary certificate examinations and stepping into university." }
-        ],
-        capsule: [
-          { id: 1, title: "Kaptai Morning Assemblies", description: "Discipline under the morning sky, surrounded by the naval base hills." },
-          { id: 2, title: "Science Lab Experiments", description: "Shared glassware, calculus questions, and the warmth of Section A friendship." },
-          { id: 3, title: "Lake Breeze & Rainy Afternoons", description: "Rain showers washing over Kaptai Lake as college classes wound down." }
-        ],
-        gallery: [
-          { id: 1, title: "Campus Vista", url: "https://apiimage.astutebd.com/Uploads/bnsck/maincampus/About%20School//1072021113810AMzx.png", description: "Panoramic hills surrounding the naval base campus of BNS Shaheed Moazzam at Kaptai.", tag: "CAMPUS" }
-        ],
-        settings: [
-          { key: "Logo", value: "https://apiimage.astutebd.com/Uploads/bnsck/maincampus/About%20School//1072021113810AMzx.png" },
-          { key: "Title", value: "BNSCK HSC 2027 Science Section A" }
-        ]
-      },
-      pagination: {
-        students: { page: 1, perPage: 15, sort: 'roll_asc' }
+        teachers: [],
+        students: [],
+        notices: [],
+        timeline: [],
+        capsule: [],
+        gallery: []
       }
     };
 
     function initSupabase() {
       try {
-        if (window.supabase && CONFIG.SUPABASE_URL) {
+        if (window.supabase) {
           supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
         }
-      } catch (err) {
-        console.warn("Supabase init:", err);
+      } catch (e) {
+        console.warn("Supabase init note:", e);
       }
     }
 
-    // Interactive Clipboard Helper with Visual Feedback
-    function copyCredential(textToCopy, btnEl, label) {
-      try {
-        const textarea = document.createElement("textarea");
-        textarea.value = textToCopy;
-        textarea.style.position = "fixed";
-        textarea.style.left = "-9999px";
-        textarea.style.top = "0";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        const successful = document.execCommand("copy");
-        document.body.removeChild(textarea);
-
-        if (!successful && navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(textToCopy);
-        }
-
-        showToast(`${label} copied to clipboard!`, "success");
-
-        if (btnEl) {
-          const originalHTML = btnEl.innerHTML;
-          btnEl.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span class="text-emerald-400">Copied!</span>`;
-          if (window.lucide) lucide.createIcons();
-          setTimeout(() => {
-            btnEl.innerHTML = originalHTML;
-            if (window.lucide) lucide.createIcons();
-          }, 1800);
-        }
-      } catch (err) {
-        showToast(`Could not copy: ${err.message}`, "error");
-      }
-    }
-
-    async function handleLogin(e) {
+    function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
+      const pass = document.getElementById("loginPassword").value;
       const errorBox = document.getElementById("loginError");
-      const loginBtn = document.getElementById("loginBtn");
 
-      errorBox.classList.add("hidden");
-      loginBtn.disabled = true;
-      loginBtn.innerHTML = `<span>Authenticating with Supabase...</span>`;
-
-      try {
-        if (!supabaseClient) initSupabase();
-
-        // Attempt Supabase Auth Sign In first
-        let authSuccess = false;
-        if (supabaseClient && supabaseClient.auth) {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-          });
-          if (!error && data && data.user) {
-            authSuccess = true;
-            state.user = data.user;
-          }
-        }
-
-        // Fallback / Master password check for bootstrap admin
-        const isMaster = (password === "Bnsck15072025@" || password === "Pulak07082008?" || password === "Adminpass");
-        if (!authSuccess && isMaster) {
-          authSuccess = true;
-          state.user = { email: email, role: 'admin' };
-        }
-
-        if (authSuccess) {
-          document.getElementById("loginView").classList.add("hidden");
-          document.getElementById("adminApp").classList.remove("hidden");
-          document.getElementById("userName").textContent = email.split('@')[0] || "Administrator";
-          
-          showToast("Signed in to Supabase Admin Portal", "success");
-          initSettingsFormValues();
-          renderAllTables();
-          await loadSupabaseData(false);
-          switchTab('dashboard');
-        } else {
-          document.getElementById("loginErrorMsg").textContent = "Invalid email or password. Please verify your Supabase Auth credentials.";
-          errorBox.classList.remove("hidden");
-          showToast("Authentication failed", "error");
-        }
-      } catch (err) {
-        document.getElementById("loginErrorMsg").textContent = err.message || "Authentication error.";
+      if (pass === "Bnsck15072025@" || pass === "Adminpass" || pass === "Pulak07082008?") {
+        state.user = { email: email, role: 'admin' };
+        document.getElementById("loginView").classList.add("hidden");
+        document.getElementById("adminApp").classList.remove("hidden");
+        document.getElementById("userName").textContent = email.split('@')[0];
+        showToast("Signed in as Administrator", "success");
+        loadSupabaseData(false);
+        switchTab('dashboard');
+      } else {
         errorBox.classList.remove("hidden");
-        showToast("Authentication error", "error");
-      } finally {
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = `<span>Sign In</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-        lucide.createIcons();
+        showToast("Invalid credentials", "error");
       }
     }
 
-    async function handleLogout() {
-      if (supabaseClient && supabaseClient.auth) {
-        await supabaseClient.auth.signOut();
-      }
+    function handleLogout() {
       state.user = null;
       document.getElementById("adminApp").classList.add("hidden");
       document.getElementById("loginView").classList.remove("hidden");
       showToast("Signed out successfully", "info");
-      lucide.createIcons();
     }
 
-    // Direct PostgREST query helper
-    async function directRestQuery(table, queryParams = "") {
-      const endpoint = `${CONFIG.SUPABASE_URL}/rest/v1/${table}${queryParams}`;
-      const res = await fetch(endpoint, {
-        headers: {
-          "apikey": CONFIG.SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
-          "Content-Type": "application/json"
-        }
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
+    function launchZohoMail() {
+      copyToClipboard("Bnsck15072025@", "Zoho Mail password copied!");
+      setTimeout(() => {
+        window.open("https://mail.zoho.com", "_blank");
+      }, 400);
+    }
+
+    function copyToClipboard(text, successMsg) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        showToast(successMsg, "success");
+      } catch (err) {
+        showToast("Could not copy automatically", "info");
       }
-      return await res.json();
     }
 
     async function loadSupabaseData(showNotification = false) {
@@ -1205,350 +997,331 @@
       if (refreshIcon) refreshIcon.classList.add("animate-spin");
 
       try {
-        let students = [], notices = [], timeline = [], capsule = [], gallery = [], settings = [];
+        const [resT, resS, resN, resTime, resCap, resGal] = await Promise.allSettled([
+          supabaseClient.from('teachers').select('*').order('display_order', { ascending: true }),
+          supabaseClient.from('students').select('*').order('roll', { ascending: true }),
+          supabaseClient.from('notices').select('*').order('id', { ascending: false }),
+          supabaseClient.from('timeline').select('*').order('id', { ascending: true }),
+          supabaseClient.from('capsule').select('*').order('id', { ascending: true }),
+          supabaseClient.from('gallery').select('*').order('display_order', { ascending: true })
+        ]);
 
-        try {
-          const resS = await supabaseClient.from('students').select('*').order('roll', { ascending: true });
-          if (resS.data && resS.data.length > 0) students = resS.data;
+        if (resT.status === 'fulfilled' && resT.value.data) state.data.teachers = resT.value.data;
+        if (resS.status === 'fulfilled' && resS.value.data) state.data.students = resS.value.data;
+        if (resN.status === 'fulfilled' && resN.value.data) state.data.notices = resN.value.data;
+        if (resTime.status === 'fulfilled' && resTime.value.data) state.data.timeline = resTime.value.data;
+        if (resCap.status === 'fulfilled' && resCap.value.data) state.data.capsule = resCap.value.data;
+        if (resGal.status === 'fulfilled' && resGal.value.data) state.data.gallery = resGal.value.data;
 
-          const resN = await supabaseClient.from('notices').select('*').order('id', { ascending: false });
-          if (resN.data && resN.data.length > 0) notices = resN.data;
-
-          const resT = await supabaseClient.from('timeline').select('*').order('display_order', { ascending: true });
-          if (resT.data && resT.data.length > 0) timeline = resT.data;
-
-          const resC = await supabaseClient.from('capsule').select('*').order('display_order', { ascending: true });
-          if (resC.data && resC.data.length > 0) capsule = resC.data;
-
-          const resG = await supabaseClient.from('gallery').select('*').order('display_order', { ascending: true });
-          if (resG.data && resG.data.length > 0) gallery = resG.data;
-
-          const resSet = await supabaseClient.from('settings').select('*');
-          if (resSet.data && resSet.data.length > 0) settings = resSet.data;
-        } catch (sdkErr) {
-          // Direct REST Fallback
-          students = await directRestQuery('students', '?order=roll.asc');
-          notices = await directRestQuery('notices', '?order=id.desc');
-          timeline = await directRestQuery('timeline', '?order=display_order.asc');
-          capsule = await directRestQuery('capsule', '?order=display_order.asc');
-          gallery = await directRestQuery('gallery', '?order=display_order.asc');
-          settings = await directRestQuery('settings', '');
+        // Ensure fallback 50 students if table is empty
+        if (state.data.students.length === 0) {
+          state.data.students = Array.from({ length: 50 }, (_, i) => ({
+            roll: String(i + 1).padStart(2, '0'),
+            name: `Student Roll ${String(i + 1).padStart(2, '0')}`,
+            role: i === 0 ? "Class Captain" : (i === 1 ? "Deputy Captain" : (i === 2 ? "Bus Captain" : "")),
+            phone: "",
+            email: "",
+            photo_url: ""
+          }));
         }
-
-        if (students && students.length > 0) state.data.students = students;
-        if (notices && notices.length > 0) state.data.notices = notices;
-        if (timeline && timeline.length > 0) state.data.timeline = timeline;
-        if (capsule && capsule.length > 0) state.data.capsule = capsule;
-        if (gallery && gallery.length > 0) state.data.gallery = gallery;
-        if (settings && settings.length > 0) state.data.settings = settings;
 
         renderAllTables();
-
-        if (showNotification) {
-          showToast("Live data loaded directly from Supabase!", "success");
-        }
+        if (showNotification) showToast("Database refreshed!", "success");
       } catch (err) {
-        console.warn("Supabase read note:", err.message);
-        renderAllTables();
+        console.warn("Supabase fetch note:", err);
       } finally {
         if (refreshIcon) refreshIcon.classList.remove("animate-spin");
-        lucide.createIcons();
       }
     }
 
     function renderAllTables() {
-      updateDashboardMetrics();
+      updateBadges();
+      renderTeachersTable();
       renderStudentsTable();
       renderNoticesTable();
       renderTimelineTable();
       renderCapsuleTable();
       renderGalleryGrid();
-      renderSettingsData();
     }
 
-    function updateDashboardMetrics() {
+    function updateBadges() {
+      document.getElementById("statTeachers").textContent = state.data.teachers.length;
       document.getElementById("statStudents").textContent = state.data.students.length;
       document.getElementById("statNotices").textContent = state.data.notices.length;
-      document.getElementById("statTimeline").textContent = state.data.timeline.length;
       document.getElementById("statGallery").textContent = state.data.gallery.length;
 
+      document.getElementById("badgeTeachers").textContent = state.data.teachers.length;
       document.getElementById("badgeStudents").textContent = state.data.students.length;
       document.getElementById("badgeNotices").textContent = state.data.notices.length;
-      document.getElementById("badgeTimeline").textContent = state.data.timeline.length;
-      document.getElementById("badgeGallery").textContent = state.data.gallery.length;
-      document.getElementById("badgeCapsule").textContent = state.data.capsule.length;
     }
 
-    async function uploadToSupabaseStorage(file, folder = "general") {
-      if (!supabaseClient) initSupabase();
+    // =========================================================================
+    // FACULTY / TEACHERS CRUD
+    // =========================================================================
+    function renderTeachersTable() {
+      const tbody = document.getElementById("teachersTableBody");
+      const q = (document.getElementById("teacherSearch")?.value || '').toLowerCase().trim();
 
-      const bucketName = CONFIG.STORAGE_BUCKET || "bnsck";
-      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-      const fileName = `${folder}/${Date.now()}_${sanitizedName}`;
+      const filtered = state.data.teachers.filter(t => 
+        (t.name || '').toLowerCase().includes(q) ||
+        (t.subject || '').toLowerCase().includes(q) ||
+        (t.category || '').toLowerCase().includes(q)
+      );
 
-      const { data, error } = await supabaseClient.storage
-        .from(bucketName)
-        .upload(fileName, file, { cacheControl: '3600', upsert: true });
-
-      if (error) {
-        return URL.createObjectURL(file);
-      }
-
-      const { data: { publicUrl } } = supabaseClient.storage
-        .from(bucketName)
-        .getPublicUrl(fileName);
-
-      return publicUrl;
-    }
-
-    async function handleImageUpload(e, folder, callback, submitBtnIdToLock) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      let lockBtn = submitBtnIdToLock ? document.getElementById(submitBtnIdToLock) : null;
-      if (lockBtn) {
-        lockBtn.disabled = true;
-        lockBtn.dataset.origText = lockBtn.innerHTML;
-        lockBtn.innerHTML = `<span>Uploading...</span>`;
-      }
-
-      showToast("Uploading image...", "info");
-
-      try {
-        const publicUrl = await uploadToSupabaseStorage(file, folder);
-        showToast("Image ready!", "success");
-        if (callback) callback(publicUrl);
-      } catch (err) {
-        showToast(err.message, "error");
-      } finally {
-        if (lockBtn) {
-          lockBtn.disabled = false;
-          if (lockBtn.dataset.origText) lockBtn.innerHTML = lockBtn.dataset.origText;
-        }
-      }
-    }
-
-    function renderStudentsTable() {
-      const tbody = document.getElementById("studentsTableBody");
-      const search = (document.getElementById("studentSearch").value || "").toLowerCase().trim();
-      const sort = state.pagination.students.sort;
-
-      let filtered = state.data.students.filter(s => {
-        const name = (s.name || "").toLowerCase();
-        const roll = String(s.roll || "").toLowerCase();
-        const role = (s.role || "").toLowerCase();
-        return name.includes(search) || roll.includes(search) || role.includes(search);
-      });
-
-      filtered.sort((a, b) => {
-        if (sort === "roll_asc") return (parseInt(a.roll) || 0) - (parseInt(b.roll) || 0);
-        if (sort === "roll_desc") return (parseInt(b.roll) || 0) - (parseInt(a.roll) || 0);
-        if (sort === "name_asc") return (a.name || "").localeCompare(b.name || "");
-        return 0;
-      });
-
-      const totalItems = filtered.length;
-      const perPage = state.pagination.students.perPage;
-      const totalPages = Math.ceil(totalItems / perPage) || 1;
-      if (state.pagination.students.page > totalPages) state.pagination.students.page = totalPages;
-      const currentPage = state.pagination.students.page;
-      const startIndex = (currentPage - 1) * perPage;
-      const paginated = filtered.slice(startIndex, startIndex + perPage);
-
-      document.getElementById("studentPageInfo").textContent = totalItems === 0 
-        ? "Showing 0 to 0 of 0 entries"
-        : `Showing ${startIndex + 1} to ${Math.min(startIndex + perPage, totalItems)} of ${totalItems} entries`;
-
-      document.getElementById("studentPrevBtn").disabled = currentPage <= 1;
-      document.getElementById("studentNextBtn").disabled = currentPage >= totalPages;
-
-      tbody.innerHTML = paginated.map(s => {
-        const roll = s.roll || "";
-        const name = s.name || "Classmate";
-        const section = s.section || "A";
-        const group = s.student_group || s.group || "Science";
-        const role = s.role || "-";
-        const photo = s.photo_url || s.photourl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0e7490&color=fff&bold=true`;
-
-        return `
-          <tr class="hover:bg-surface-850/50 transition-colors">
-            <td class="py-3 px-4">
-              <div class="w-8 h-8 rounded-full bg-surface-850 border border-surface-700 overflow-hidden flex items-center justify-center">
-                <img src="${photo}" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0e7490&color=fff'" />
-              </div>
-            </td>
-            <td class="py-3 px-4 font-mono font-semibold text-cyan-300">${escapeHtml(roll)}</td>
-            <td class="py-3 px-4 font-medium text-white">${escapeHtml(name)}</td>
-            <td class="py-3 px-4 text-slate-400">${escapeHtml(section)} &bull; ${escapeHtml(group)}</td>
-            <td class="py-3 px-4 text-slate-300 font-semibold">${escapeHtml(role)}</td>
-            <td class="py-3 px-4 text-right space-x-2">
-              <button onclick="editStudent('${roll}')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition-colors cursor-pointer" title="Edit Student">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-              </button>
-              <button onclick="confirmDelete('students', 'roll', '${roll}', '${escapeHtml(name)}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-surface-800 transition-colors cursor-pointer" title="Delete Student">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join("");
-
+      tbody.innerHTML = filtered.map(t => `
+        <tr class="hover:bg-surface-850">
+          <td class="py-2.5 px-4 font-bold text-white flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full overflow-hidden bg-surface-800 border border-surface-700 shrink-0">
+              ${t.photo_url ? `<img src="${t.photo_url}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-cyan-400 font-bold">T</div>`}
+            </div>
+            <div>
+              <div>${escapeHtml(t.name)}</div>
+              <div class="text-[10px] text-slate-400 font-normal">${escapeHtml(t.designation || '')}</div>
+            </div>
+          </td>
+          <td class="py-2.5 px-4"><span class="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold uppercase">${escapeHtml(t.category || 'Teacher')}</span></td>
+          <td class="py-2.5 px-4 font-semibold text-slate-300">${escapeHtml(t.subject || '')}</td>
+          <td class="py-2.5 px-4 font-mono text-cyan-300">${escapeHtml(t.phone || '-')}</td>
+          <td class="py-2.5 px-4 font-mono text-slate-400">${escapeHtml(t.email || '-')}</td>
+          <td class="py-2.5 px-4 text-right space-x-2">
+            <button onclick="editTeacher(${t.id})" class="text-cyan-400 hover:text-white font-semibold">Edit</button>
+            <button onclick="requestDeleteRecord('teachers', 'id', ${t.id}, '${escapeHtml(t.name)}')" class="text-rose-400 hover:text-rose-300">Delete</button>
+          </td>
+        </tr>
+      `).join('');
       lucide.createIcons();
     }
 
-    function handleStudentSearch() {
-      state.pagination.students.page = 1;
-      renderStudentsTable();
+    function openTeacherModal(teacher = null) {
+      document.getElementById("teacherForm").reset();
+      if (teacher) {
+        document.getElementById("teacherModalTitle").textContent = "Edit Faculty Member";
+        document.getElementById("teacherOriginalId").value = teacher.id;
+        document.getElementById("teacherName").value = teacher.name || '';
+        document.getElementById("teacherCategory").value = teacher.category || 'Subject Teacher';
+        document.getElementById("teacherDesignation").value = teacher.designation || '';
+        document.getElementById("teacherSubject").value = teacher.subject || '';
+        document.getElementById("teacherPhone").value = teacher.phone || '';
+        document.getElementById("teacherEmail").value = teacher.email || '';
+        document.getElementById("teacherFb").value = teacher.social_facebook || '';
+        document.getElementById("teacherWa").value = teacher.social_whatsapp || '';
+        document.getElementById("teacherInsta").value = teacher.social_instagram || '';
+        document.getElementById("teacherPhotoUrl").value = teacher.photo_url || '';
+        document.getElementById("teacherMessage").value = teacher.message || '';
+      } else {
+        document.getElementById("teacherModalTitle").textContent = "Add Faculty Member";
+        document.getElementById("teacherOriginalId").value = '';
+      }
+      document.getElementById("teacherModal").classList.remove("hidden");
     }
 
-    function handleStudentSort() {
-      state.pagination.students.sort = document.getElementById("studentSort").value;
-      renderStudentsTable();
+    function closeTeacherModal() {
+      document.getElementById("teacherModal").classList.add("hidden");
     }
 
-    function changeStudentPage(delta) {
-      state.pagination.students.page += delta;
-      renderStudentsTable();
+    function editTeacher(id) {
+      const t = state.data.teachers.find(x => x.id === id);
+      if (t) openTeacherModal(t);
+    }
+
+    async function handleSaveTeacher(e) {
+      e.preventDefault();
+      const origId = document.getElementById("teacherOriginalId").value;
+      const payload = {
+        name: document.getElementById("teacherName").value.trim(),
+        category: document.getElementById("teacherCategory").value,
+        designation: document.getElementById("teacherDesignation").value.trim(),
+        subject: document.getElementById("teacherSubject").value.trim(),
+        phone: document.getElementById("teacherPhone").value.trim(),
+        email: document.getElementById("teacherEmail").value.trim(),
+        social_facebook: document.getElementById("teacherFb").value.trim(),
+        social_whatsapp: document.getElementById("teacherWa").value.trim(),
+        social_instagram: document.getElementById("teacherInsta").value.trim(),
+        photo_url: document.getElementById("teacherPhotoUrl").value.trim(),
+        message: document.getElementById("teacherMessage").value.trim()
+      };
+
+      try {
+        if (origId) {
+          payload.id = parseInt(origId);
+          await supabaseClient.from('teachers').update(payload).eq('id', origId);
+          showToast("Faculty updated!", "success");
+        } else {
+          payload.display_order = state.data.teachers.length + 1;
+          await supabaseClient.from('teachers').insert([payload]);
+          showToast("Faculty added!", "success");
+        }
+        closeTeacherModal();
+        await loadSupabaseData(false);
+      } catch (err) {
+        showToast(err.message, "error");
+      }
+    }
+
+    // =========================================================================
+    // STUDENTS CRUD & PDF CREATOR
+    // =========================================================================
+    function renderStudentsTable() {
+      const tbody = document.getElementById("studentsTableBody");
+      const q = (document.getElementById("studentSearch")?.value || '').toLowerCase().trim();
+
+      const filtered = state.data.students.filter(s =>
+        (s.name || '').toLowerCase().includes(q) ||
+        String(s.roll || '').includes(q) ||
+        (s.role || '').toLowerCase().includes(q) ||
+        (s.phone || '').includes(q)
+      );
+
+      tbody.innerHTML = filtered.map(s => `
+        <tr class="hover:bg-surface-850">
+          <td class="py-2 px-4">
+            <div class="w-8 h-8 rounded-full overflow-hidden bg-surface-800 border border-surface-700 flex items-center justify-center">
+              ${s.photo_url ? `<img src="${s.photo_url}" class="w-full h-full object-cover">` : `<span class="text-cyan-400 font-mono text-[10px] font-bold">${s.roll}</span>`}
+            </div>
+          </td>
+          <td class="py-2 px-4 font-mono font-bold text-cyan-300">${s.roll}</td>
+          <td class="py-2 px-4 font-semibold text-white">${escapeHtml(s.name)}</td>
+          <td class="py-2 px-4">${s.role ? `<span class="px-2 py-0.5 rounded bg-cyan-600/30 text-cyan-300 font-bold text-[10px]">${escapeHtml(s.role)}</span>` : '<span class="text-slate-600">-</span>'}</td>
+          <td class="py-2 px-4 font-mono text-slate-300">${escapeHtml(s.phone || '-')}</td>
+          <td class="py-2 px-4">
+            <div class="flex items-center gap-1.5 text-[10px]">
+              ${s.social_whatsapp ? '<span class="text-emerald-400 font-mono">WA</span>' : ''}
+              ${s.social_facebook ? '<span class="text-blue-400 font-mono">FB</span>' : ''}
+              ${s.social_instagram ? '<span class="text-pink-400 font-mono">IG</span>' : ''}
+              ${!s.social_whatsapp && !s.social_facebook && !s.social_instagram ? '<span class="text-slate-600">-</span>' : ''}
+            </div>
+          </td>
+          <td class="py-2 px-4 text-right space-x-2">
+            <button onclick="editStudent('${s.roll}')" class="text-cyan-400 hover:text-white font-semibold">Edit</button>
+            <button onclick="requestDeleteRecord('students', 'roll', '${s.roll}', 'Roll ${s.roll}')" class="text-rose-400 hover:text-rose-300">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
     }
 
     function openStudentModal(student = null) {
       document.getElementById("studentForm").reset();
-      document.getElementById("studentPhotoPreview").classList.add("hidden");
-      document.getElementById("studentPhotoIcon").classList.remove("hidden");
-
       if (student) {
         document.getElementById("studentModalTitle").textContent = "Edit Student";
-        document.getElementById("studentOriginalRoll").value = student.roll || "";
-        document.getElementById("studentRoll").value = student.roll || "";
-        document.getElementById("studentName").value = student.name || "";
-        document.getElementById("studentGroup").value = student.student_group || student.group || "Science";
-        document.getElementById("studentSection").value = student.section || "A";
-        document.getElementById("studentTitle").value = student.role || "";
-        document.getElementById("studentBio").value = student.bio || "Member of HSC 2027 Science Section A, Kaptai.";
-        
-        const photo = student.photo_url || student.photourl || "";
-        document.getElementById("studentPhotoUrl").value = photo;
-        if (photo) {
-          document.getElementById("studentPhotoPreview").src = photo;
-          document.getElementById("studentPhotoPreview").classList.remove("hidden");
-          document.getElementById("studentPhotoIcon").classList.add("hidden");
-        }
+        document.getElementById("studentRoll").value = student.roll || '';
+        document.getElementById("studentName").value = student.name || '';
+        document.getElementById("studentRole").value = student.role || '';
+        document.getElementById("studentPhone").value = student.phone || '';
+        document.getElementById("studentEmail").value = student.email || '';
+        document.getElementById("studentFb").value = student.social_facebook || '';
+        document.getElementById("studentWa").value = student.social_whatsapp || '';
+        document.getElementById("studentInsta").value = student.social_instagram || '';
+        document.getElementById("studentPhotoUrl").value = student.photo_url || '';
+        document.getElementById("studentBio").value = student.bio || 'Member of HSC 2027 Science Section A, Kaptai.';
       } else {
         document.getElementById("studentModalTitle").textContent = "Add Student";
-        document.getElementById("studentOriginalRoll").value = "";
-        document.getElementById("studentGroup").value = "Science";
-        document.getElementById("studentSection").value = "A";
-        document.getElementById("studentBio").value = "Member of HSC 2027 Science Section A, Kaptai.";
       }
-
       document.getElementById("studentModal").classList.remove("hidden");
-      lucide.createIcons();
     }
 
     function closeStudentModal() {
       document.getElementById("studentModal").classList.add("hidden");
     }
 
-    function onStudentPhotoUploaded(url) {
-      document.getElementById("studentPhotoUrl").value = url;
-      document.getElementById("studentPhotoPreview").src = url;
-      document.getElementById("studentPhotoPreview").classList.remove("hidden");
-      document.getElementById("studentPhotoIcon").classList.add("hidden");
-    }
-
     function editStudent(roll) {
-      const student = state.data.students.find(s => String(s.roll) === String(roll));
-      if (student) openStudentModal(student);
+      const s = state.data.students.find(x => String(x.roll) === String(roll));
+      if (s) openStudentModal(s);
     }
 
     async function handleSaveStudent(e) {
       e.preventDefault();
-      const saveBtn = document.getElementById("saveStudentBtn");
-      saveBtn.disabled = true;
-
       const rawRoll = document.getElementById("studentRoll").value.trim();
-      const formattedRoll = String(rawRoll).padStart(2, '0');
-      const name = document.getElementById("studentName").value.trim();
-      const group = document.getElementById("studentGroup").value.trim() || "Science";
-      const section = document.getElementById("studentSection").value.trim() || "A";
-      const role = document.getElementById("studentTitle").value.trim();
-      const bio = document.getElementById("studentBio").value.trim();
-      const photoUrl = document.getElementById("studentPhotoUrl").value.trim();
-
-      const studentPayload = {
-        roll: formattedRoll,
-        name: name,
-        role: role,
-        photo_url: photoUrl,
-        bio: bio,
-        student_group: group,
-        section: section
+      const roll = String(rawRoll).padStart(2, '0');
+      const payload = {
+        roll: roll,
+        name: document.getElementById("studentName").value.trim(),
+        role: document.getElementById("studentRole").value.trim(),
+        phone: document.getElementById("studentPhone").value.trim(),
+        email: document.getElementById("studentEmail").value.trim(),
+        social_facebook: document.getElementById("studentFb").value.trim(),
+        social_whatsapp: document.getElementById("studentWa").value.trim(),
+        social_instagram: document.getElementById("studentInsta").value.trim(),
+        photo_url: document.getElementById("studentPhotoUrl").value.trim(),
+        bio: document.getElementById("studentBio").value.trim(),
+        student_group: "Science",
+        section: "A"
       };
 
       try {
-        showToast("Saving student record...", "info");
-        
-        const idx = state.data.students.findIndex(s => s.roll === formattedRoll);
-        if (idx !== -1) state.data.students[idx] = studentPayload;
-        else state.data.students.push(studentPayload);
-        
-        renderStudentsTable();
-
-        if (supabaseClient) {
-          await supabaseClient.from('students').upsert([studentPayload], { onConflict: 'roll' });
-        }
-
-        showToast(`Student Roll ${formattedRoll} saved successfully!`, "success");
+        await supabaseClient.from('students').upsert([payload], { onConflict: 'roll' });
+        showToast(`Student Roll ${roll} saved!`, "success");
         closeStudentModal();
+        await loadSupabaseData(false);
       } catch (err) {
-        showToast("Saved locally: " + err.message, "info");
-      } finally {
-        saveBtn.disabled = false;
+        showToast(err.message, "error");
       }
     }
 
+    function generateStudentsPDF() {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFillColor(9, 15, 29);
+        doc.rect(0, 0, 210, 297, 'F');
+
+        doc.setTextColor(0, 229, 255);
+        doc.setFontSize(15);
+        doc.text("Bangladesh Noubahini School and College Kaptai", 14, 18);
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.text("HSC 2027 • Science Group • Section A Student Directory", 14, 25);
+
+        doc.setTextColor(148, 163, 184);
+        doc.setFontSize(8);
+        doc.text(`Official Batch Record • Generated: ${new Date().toLocaleDateString()}`, 14, 31);
+
+        const tableRows = state.data.students.map(s => [
+          s.roll || '',
+          s.name || '',
+          s.role || '-',
+          s.phone || '-',
+          s.email || '-'
+        ]);
+
+        doc.autoTable({
+          startY: 36,
+          head: [['Roll', 'Full Name', 'Badge / Appointment', 'Phone Number', 'Email Address']],
+          body: tableRows,
+          theme: 'grid',
+          headStyles: { fillColor: [14, 116, 144], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+          styles: { fontSize: 8, textColor: [226, 232, 240], cellPadding: 2.5 },
+          alternateRowStyles: { fillColor: [14, 23, 42] }
+        });
+
+        doc.save("BNSCK_HSC27_SectionA_Students.pdf");
+        showToast("Student roster PDF exported successfully!", "success");
+      } catch (err) {
+        showToast("PDF error: " + err.message, "error");
+      }
+    }
+
+    // =========================================================================
+    // NOTICES CRUD (WITH EDIT & 9S POPUP TOGGLE)
+    // =========================================================================
     function renderNoticesTable() {
       const tbody = document.getElementById("noticesTableBody");
-      const search = (document.getElementById("noticeSearch").value || "").toLowerCase();
-
-      const filtered = state.data.notices.filter(n => {
-        const title = (n.title || "").toLowerCase();
-        const desc = (n.description || "").toLowerCase();
-        return title.includes(search) || desc.includes(search);
-      });
-
-      tbody.innerHTML = filtered.map((n) => {
-        const id = n.id;
-        const date = n.date || "Announcement";
-        const title = n.title || "Notice";
-        const desc = n.description || "";
-        const url = n.url || "";
-        const popup = n.popup || "";
-
-        return `
-          <tr class="hover:bg-surface-850/50 transition-colors">
-            <td class="py-3 px-4 font-mono text-slate-400 whitespace-nowrap">${escapeHtml(date)}</td>
-            <td class="py-3 px-4 font-semibold text-white whitespace-nowrap">
-              <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[11px]">${escapeHtml(title)}</span>
-              ${popup ? `<span class="ml-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">★ POPUP</span>` : ''}
-            </td>
-            <td class="py-3 px-4 text-slate-300 max-w-sm truncate">${escapeHtml(desc)}</td>
-            <td class="py-3 px-4">
-              ${url ? `<a href="${url}" target="_blank" class="text-cyan-400 hover:underline flex items-center gap-1 font-mono text-[11px]"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Link</a>` : `<span class="text-slate-600">-</span>`}
-            </td>
-            <td class="py-3 px-4 text-right space-x-2 whitespace-nowrap">
-              <button onclick="editNotice(${id})" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition-colors cursor-pointer">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-              </button>
-              <button onclick="confirmDelete('notices', 'id', '${id}', '${escapeHtml(title)}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-surface-800 transition-colors cursor-pointer">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join("");
-
-      lucide.createIcons();
+      tbody.innerHTML = state.data.notices.map(n => `
+        <tr class="hover:bg-surface-850">
+          <td class="py-2.5 px-4 font-mono text-slate-400">${escapeHtml(n.date || 'Bulletin')}</td>
+          <td class="py-2.5 px-4 font-bold text-white">
+            ${escapeHtml(n.title)}
+            ${n.popup && n.popup.toLowerCase().includes('pop') ? '<span class="ml-1.5 px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono text-[9px] border border-rose-500/30">★ 9s POPUP</span>' : ''}
+          </td>
+          <td class="py-2.5 px-4 text-slate-300 truncate max-w-xs">${escapeHtml(n.description || '')}</td>
+          <td class="py-2.5 px-4 text-right space-x-2">
+            <button onclick="editNotice(${n.id})" class="text-cyan-400 hover:text-white font-semibold">Edit</button>
+            <button onclick="requestDeleteRecord('notices', 'id', ${n.id}, '${escapeHtml(n.title)}')" class="text-rose-400 hover:text-rose-300">Delete</button>
+          </td>
+        </tr>
+      `).join('');
     }
 
     function openNoticeModal(notice = null) {
@@ -1556,27 +1329,22 @@
       if (notice) {
         document.getElementById("noticeModalTitle").textContent = "Edit Notice";
         document.getElementById("noticeOriginalId").value = notice.id;
-        document.getElementById("noticeTitle").value = notice.title || "";
-        document.getElementById("noticePopup").value = notice.popup || "";
-        document.getElementById("noticeDate").value = notice.date || "";
-        document.getElementById("noticeDescription").value = notice.description || "";
-        document.getElementById("noticeUrl").value = notice.url || "";
+        document.getElementById("noticeTitle").value = notice.title || '';
+        document.getElementById("noticePopup").value = (notice.popup && notice.popup.toLowerCase().includes('pop')) ? 'pop up' : '';
+        document.getElementById("noticeDate").value = notice.date || 'Current Bulletin';
+        document.getElementById("noticeDesc").value = notice.description || '';
+        document.getElementById("noticeUrl").value = notice.url || '';
       } else {
         document.getElementById("noticeModalTitle").textContent = "Create Notice";
-        document.getElementById("noticeOriginalId").value = "";
-        document.getElementById("noticePopup").value = "";
-        document.getElementById("noticeDate").value = "Academic Notice";
+        document.getElementById("noticeOriginalId").value = '';
+        document.getElementById("noticePopup").value = '';
+        document.getElementById("noticeDate").value = 'Current Bulletin';
       }
       document.getElementById("noticeModal").classList.remove("hidden");
-      lucide.createIcons();
     }
 
     function closeNoticeModal() {
       document.getElementById("noticeModal").classList.add("hidden");
-    }
-
-    function onNoticePhotoUploaded(url) {
-      document.getElementById("noticeUrl").value = url;
     }
 
     function editNotice(id) {
@@ -1586,80 +1354,47 @@
 
     async function handleSaveNotice(e) {
       e.preventDefault();
-      const saveBtn = document.getElementById("saveNoticeBtn");
-      saveBtn.disabled = true;
-
       const origId = document.getElementById("noticeOriginalId").value;
-      const title = document.getElementById("noticeTitle").value.trim();
-      const popup = document.getElementById("noticePopup").value.trim();
-      const dateVal = document.getElementById("noticeDate").value.trim();
-      const description = document.getElementById("noticeDescription").value.trim();
-      const url = document.getElementById("noticeUrl").value.trim();
-
-      const noticePayload = {
-        title: title,
-        description: description,
-        url: url,
-        popup: popup,
-        date: dateVal
+      const payload = {
+        title: document.getElementById("noticeTitle").value.trim(),
+        popup: document.getElementById("noticePopup").value.trim(),
+        date: document.getElementById("noticeDate").value.trim(),
+        description: document.getElementById("noticeDesc").value.trim(),
+        url: document.getElementById("noticeUrl").value.trim()
       };
 
       try {
         if (origId) {
-          noticePayload.id = parseInt(origId);
-          const idx = state.data.notices.findIndex(n => n.id === parseInt(origId));
-          if (idx !== -1) state.data.notices[idx] = noticePayload;
-          if (supabaseClient) await supabaseClient.from('notices').update(noticePayload).eq('id', origId);
+          payload.id = parseInt(origId);
+          await supabaseClient.from('notices').update(payload).eq('id', origId);
+          showToast("Notice updated!", "success");
         } else {
-          noticePayload.id = Date.now();
-          state.data.notices.unshift(noticePayload);
-          if (supabaseClient) await supabaseClient.from('notices').insert([noticePayload]);
+          await supabaseClient.from('notices').insert([payload]);
+          showToast("Notice posted!", "success");
         }
-
-        renderNoticesTable();
-        showToast("Notice saved successfully!", "success");
         closeNoticeModal();
+        await loadSupabaseData(false);
       } catch (err) {
-        showToast("Saved locally: " + err.message, "info");
-      } finally {
-        saveBtn.disabled = false;
+        showToast(err.message, "error");
       }
     }
 
+    // =========================================================================
+    // TIMELINE CRUD
+    // =========================================================================
     function renderTimelineTable() {
       const tbody = document.getElementById("timelineTableBody");
-      const search = (document.getElementById("timelineSearch").value || "").toLowerCase();
-
-      const filtered = state.data.timeline.filter(t => {
-        const title = (t.title || "").toLowerCase();
-        const desc = (t.description || "").toLowerCase();
-        return title.includes(search) || desc.includes(search);
-      });
-
-      tbody.innerHTML = filtered.map((t) => {
-        const id = t.id;
-        const date = t.date || "2025–2027";
-        const title = t.title || "Milestone";
-        const desc = t.description || "";
-
-        return `
-          <tr class="hover:bg-surface-850/50 transition-colors">
-            <td class="py-3 px-4 font-mono text-cyan-400 font-medium whitespace-nowrap">${escapeHtml(date)}</td>
-            <td class="py-3 px-4 font-medium text-white">${escapeHtml(title)}</td>
-            <td class="py-3 px-4 text-slate-400 max-w-sm truncate">${escapeHtml(desc)}</td>
-            <td class="py-3 px-4 text-right space-x-2 whitespace-nowrap">
-              <button onclick="editTimeline(${id})" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition-colors cursor-pointer">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-              </button>
-              <button onclick="confirmDelete('timeline', 'id', '${id}', '${escapeHtml(title)}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-surface-800 transition-colors cursor-pointer">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join("");
-
-      lucide.createIcons();
+      tbody.innerHTML = state.data.timeline.map(t => `
+        <tr class="hover:bg-surface-850">
+          <td class="py-2.5 px-4 font-mono text-cyan-300 font-semibold">${escapeHtml(t.date || '')}</td>
+          <td class="py-2.5 px-4 font-bold text-white">${escapeHtml(t.title || '')}</td>
+          <td class="py-2.5 px-4 text-slate-300 truncate max-w-sm">${escapeHtml(t.description || t.desc || '')}</td>
+          <td class="py-2.5 px-4 text-right space-x-2">
+            <button onclick="editTimeline(${t.id})" class="text-cyan-400 hover:text-white font-semibold">Edit</button>
+            <button onclick="requestDeleteRecord('timeline', 'id', ${t.id}, '${escapeHtml(t.title)}')" class="text-rose-400 hover:text-rose-300">Delete</button>
+          </td>
+        </tr>
+      `).join('');
     }
 
     function openTimelineModal(item = null) {
@@ -1667,15 +1402,14 @@
       if (item) {
         document.getElementById("timelineModalTitle").textContent = "Edit Milestone";
         document.getElementById("timelineOriginalId").value = item.id;
-        document.getElementById("timelineDate").value = item.date || "";
-        document.getElementById("timelineTitle").value = item.title || "";
-        document.getElementById("timelineDesc").value = item.description || "";
+        document.getElementById("timelineDate").value = item.date || '';
+        document.getElementById("timelineTitle").value = item.title || '';
+        document.getElementById("timelineDesc").value = item.description || item.desc || '';
       } else {
         document.getElementById("timelineModalTitle").textContent = "Add Milestone";
-        document.getElementById("timelineOriginalId").value = "";
+        document.getElementById("timelineOriginalId").value = '';
       }
       document.getElementById("timelineModal").classList.remove("hidden");
-      lucide.createIcons();
     }
 
     function closeTimelineModal() {
@@ -1689,86 +1423,58 @@
 
     async function handleSaveTimeline(e) {
       e.preventDefault();
-      const saveBtn = document.getElementById("saveTimelineBtn");
-      saveBtn.disabled = true;
-
       const origId = document.getElementById("timelineOriginalId").value;
-      const date = document.getElementById("timelineDate").value.trim();
-      const title = document.getElementById("timelineTitle").value.trim();
-      const desc = document.getElementById("timelineDesc").value.trim();
-
-      const timelinePayload = { date: date, title: title, description: desc };
+      const payload = {
+        date: document.getElementById("timelineDate").value.trim(),
+        title: document.getElementById("timelineTitle").value.trim(),
+        description: document.getElementById("timelineDesc").value.trim()
+      };
 
       try {
         if (origId) {
-          timelinePayload.id = parseInt(origId);
-          const idx = state.data.timeline.findIndex(t => t.id === parseInt(origId));
-          if (idx !== -1) state.data.timeline[idx] = timelinePayload;
-          if (supabaseClient) await supabaseClient.from('timeline').update(timelinePayload).eq('id', origId);
+          payload.id = parseInt(origId);
+          await supabaseClient.from('timeline').update(payload).eq('id', origId);
+          showToast("Milestone updated!", "success");
         } else {
-          timelinePayload.id = Date.now();
-          timelinePayload.display_order = state.data.timeline.length + 1;
-          state.data.timeline.push(timelinePayload);
-          if (supabaseClient) await supabaseClient.from('timeline').insert([timelinePayload]);
+          await supabaseClient.from('timeline').insert([payload]);
+          showToast("Milestone added!", "success");
         }
-
-        renderTimelineTable();
-        showToast("Timeline milestone saved!", "success");
         closeTimelineModal();
+        await loadSupabaseData(false);
       } catch (err) {
-        showToast("Saved locally: " + err.message, "info");
-      } finally {
-        saveBtn.disabled = false;
+        showToast(err.message, "error");
       }
     }
 
+    // =========================================================================
+    // CAPSULE CRUD
+    // =========================================================================
     function renderCapsuleTable() {
       const tbody = document.getElementById("capsuleTableBody");
-      const search = (document.getElementById("capsuleSearch").value || "").toLowerCase();
-
-      const filtered = state.data.capsule.filter(c => {
-        const title = (c.title || "").toLowerCase();
-        const msg = (c.description || "").toLowerCase();
-        return title.includes(search) || msg.includes(search);
-      });
-
-      tbody.innerHTML = filtered.map((c) => {
-        const id = c.id;
-        const title = c.title || "Memory";
-        const desc = c.description || "";
-
-        return `
-          <tr class="hover:bg-surface-850/50 transition-colors">
-            <td class="py-3 px-4 font-semibold text-white">${escapeHtml(title)}</td>
-            <td class="py-3 px-4 text-slate-400 max-w-sm truncate">${escapeHtml(desc)}</td>
-            <td class="py-3 px-4 text-right space-x-2 whitespace-nowrap">
-              <button onclick="editCapsule(${id})" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition-colors cursor-pointer">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-              </button>
-              <button onclick="confirmDelete('capsule', 'id', '${id}', '${escapeHtml(title)}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-surface-800 transition-colors cursor-pointer">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join("");
-
-      lucide.createIcons();
+      tbody.innerHTML = state.data.capsule.map(c => `
+        <tr class="hover:bg-surface-850">
+          <td class="py-2.5 px-4 font-bold text-white">${escapeHtml(c.title || '')}</td>
+          <td class="py-2.5 px-4 text-slate-300 truncate max-w-md">${escapeHtml(c.description || c.desc || '')}</td>
+          <td class="py-2.5 px-4 text-right space-x-2">
+            <button onclick="editCapsule(${c.id})" class="text-cyan-400 hover:text-white font-semibold">Edit</button>
+            <button onclick="requestDeleteRecord('capsule', 'id', ${c.id}, '${escapeHtml(c.title)}')" class="text-rose-400 hover:text-rose-300">Delete</button>
+          </td>
+        </tr>
+      `).join('');
     }
 
     function openCapsuleModal(item = null) {
       document.getElementById("capsuleForm").reset();
       if (item) {
-        document.getElementById("capsuleModalTitle").textContent = "Edit Capsule Entry";
+        document.getElementById("capsuleModalTitle").textContent = "Edit Memory";
         document.getElementById("capsuleOriginalId").value = item.id;
-        document.getElementById("capsuleTitle").value = item.title || "";
-        document.getElementById("capsuleDesc").value = item.description || "";
+        document.getElementById("capsuleTitle").value = item.title || '';
+        document.getElementById("capsuleDesc").value = item.description || item.desc || '';
       } else {
-        document.getElementById("capsuleModalTitle").textContent = "Add Capsule Memory";
-        document.getElementById("capsuleOriginalId").value = "";
+        document.getElementById("capsuleModalTitle").textContent = "Add Memory";
+        document.getElementById("capsuleOriginalId").value = '';
       }
       document.getElementById("capsuleModal").classList.remove("hidden");
-      lucide.createIcons();
     }
 
     function closeCapsuleModal() {
@@ -1782,119 +1488,95 @@
 
     async function handleSaveCapsule(e) {
       e.preventDefault();
-      const saveBtn = document.getElementById("saveCapsuleBtn");
-      saveBtn.disabled = true;
-
       const origId = document.getElementById("capsuleOriginalId").value;
-      const title = document.getElementById("capsuleTitle").value.trim();
-      const desc = document.getElementById("capsuleDesc").value.trim();
-
-      const capsulePayload = { title: title, description: desc };
+      const payload = {
+        title: document.getElementById("capsuleTitle").value.trim(),
+        description: document.getElementById("capsuleDesc").value.trim()
+      };
 
       try {
         if (origId) {
-          capsulePayload.id = parseInt(origId);
-          const idx = state.data.capsule.findIndex(c => c.id === parseInt(origId));
-          if (idx !== -1) state.data.capsule[idx] = capsulePayload;
-          if (supabaseClient) await supabaseClient.from('capsule').update(capsulePayload).eq('id', origId);
+          payload.id = parseInt(origId);
+          await supabaseClient.from('capsule').update(payload).eq('id', origId);
+          showToast("Memory updated!", "success");
         } else {
-          capsulePayload.id = Date.now();
-          capsulePayload.display_order = state.data.capsule.length + 1;
-          state.data.capsule.push(capsulePayload);
-          if (supabaseClient) await supabaseClient.from('capsule').insert([capsulePayload]);
+          await supabaseClient.from('capsule').insert([payload]);
+          showToast("Memory saved!", "success");
         }
-
-        renderCapsuleTable();
-        showToast("Capsule memory archived!", "success");
         closeCapsuleModal();
+        await loadSupabaseData(false);
       } catch (err) {
-        showToast("Saved locally: " + err.message, "info");
-      } finally {
-        saveBtn.disabled = false;
+        showToast(err.message, "error");
       }
     }
 
+    // =========================================================================
+    // GALLERY CRUD (WITH EDIT MODAL, TITLES & CAPTIONS)
+    // =========================================================================
     function renderGalleryGrid() {
       const grid = document.getElementById("galleryGrid");
-      const search = (document.getElementById("gallerySearch").value || "").toLowerCase();
-
-      const filtered = state.data.gallery.filter(g => {
-        const title = (g.title || "").toLowerCase();
-        const desc = (g.description || "").toLowerCase();
-        return title.includes(search) || desc.includes(search);
-      });
-
-      grid.innerHTML = filtered.map((g) => {
-        const id = g.id;
-        const title = g.title || "Photo";
-        const image = g.url || "";
-        const desc = g.description || "";
-        const tag = g.tag || "CAMPUS";
-
-        return `
-          <div class="bg-surface-900 border border-surface-700/80 rounded-2xl overflow-hidden shadow-sm flex flex-col group">
-            <div class="relative h-40 bg-surface-850 overflow-hidden">
-              <img src="${image}" alt="${escapeHtml(title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/600x400/111722/00e5ff?text=Photo+Preview'" />
-              <div class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/75 border border-cyan-400/40 text-[9px] font-bold uppercase text-cyan-300">${escapeHtml(tag)}</div>
+      grid.innerHTML = state.data.gallery.map(g => `
+        <div class="bg-surface-900 border border-surface-700 rounded-2xl overflow-hidden p-3 flex flex-col justify-between group">
+          <div>
+            <div class="h-36 bg-surface-850 rounded-xl overflow-hidden mb-2.5 relative">
+              <img src="${g.url}" alt="${escapeHtml(g.title || '')}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/600x400/090f1d/00e5ff?text=Photo+Preview'">
+              <span class="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/80 text-cyan-300 font-mono text-[9px] uppercase font-bold border border-cyan-400/30">${escapeHtml(g.tag || 'CAMPUS')}</span>
             </div>
-            <div class="p-3.5 flex-1 flex flex-col justify-between">
-              <div>
-                <h4 class="text-xs font-semibold text-white truncate">${escapeHtml(title)}</h4>
-                <p class="text-[10px] text-slate-400 truncate mt-0.5">${escapeHtml(desc)}</p>
-              </div>
-              <div class="mt-3 pt-2.5 border-t border-surface-800 flex items-center justify-between">
-                <button onclick="editGallery(${id})" class="text-xs font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer">
-                  <i data-lucide="edit-2" class="w-3 h-3"></i> Edit
-                </button>
-                <button onclick="confirmDelete('gallery', 'id', '${id}', '${escapeHtml(title)}')" class="text-xs font-medium text-rose-400 hover:text-rose-300 flex items-center gap-1 cursor-pointer">
-                  <i data-lucide="trash-2" class="w-3 h-3"></i> Delete
-                </button>
-              </div>
-            </div>
+            <h4 class="font-bold text-white text-xs truncate">${escapeHtml(g.title || 'Untitled Photo')}</h4>
+            <p class="text-[11px] text-slate-400 line-clamp-2 mt-1 leading-snug">${escapeHtml(g.description || g.desc || 'No caption entered.')}</p>
           </div>
-        `;
-      }).join("");
-
+          <div class="mt-3 pt-2.5 border-t border-surface-800 flex items-center justify-between text-xs">
+            <button onclick="editGallery(${g.id})" class="text-cyan-400 hover:text-white font-semibold flex items-center gap-1">
+              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+              <span>Edit Details</span>
+            </button>
+            <button onclick="requestDeleteRecord('gallery', 'id', ${g.id}, '${escapeHtml(g.title || 'photo')}')" class="text-rose-400 hover:text-rose-300">Delete</button>
+          </div>
+        </div>
+      `).join('');
       lucide.createIcons();
     }
 
     function openGalleryModal(item = null) {
       document.getElementById("galleryForm").reset();
-      document.getElementById("galleryFilePreviewContainer").classList.add("hidden");
-      document.getElementById("galleryUploadBox").classList.remove("hidden");
+      const previewImg = document.getElementById("galleryLiveImg");
+      const previewPlc = document.getElementById("galleryPreviewPlc");
 
       if (item) {
-        document.getElementById("galleryModalTitle").textContent = "Edit Photo";
+        document.getElementById("galleryModalTitle").textContent = "Edit Photo Details";
         document.getElementById("galleryOriginalId").value = item.id;
-        document.getElementById("galleryTitle").value = item.title || "";
-        document.getElementById("galleryImageUrl").value = item.url || "";
-        document.getElementById("galleryTag").value = item.tag || "CAMPUS";
-        document.getElementById("galleryDescription").value = item.description || "";
-        
-        if (item.url) {
-          document.getElementById("galleryFilePreview").src = item.url;
-          document.getElementById("galleryFilePreviewContainer").classList.remove("hidden");
-          document.getElementById("galleryUploadBox").classList.add("hidden");
-        }
+        document.getElementById("galleryTitle").value = item.title || '';
+        document.getElementById("galleryTag").value = item.tag || 'CAMPUS';
+        document.getElementById("galleryOrder").value = item.display_order || 1;
+        document.getElementById("galleryUrl").value = item.url || '';
+        document.getElementById("galleryDesc").value = item.description || item.desc || '';
+        updateGalleryPreview(item.url || '');
       } else {
-        document.getElementById("galleryModalTitle").textContent = "Upload Gallery Photo";
-        document.getElementById("galleryOriginalId").value = "";
-        document.getElementById("galleryTag").value = "CAMPUS";
+        document.getElementById("galleryModalTitle").textContent = "Add Photo to Gallery";
+        document.getElementById("galleryOriginalId").value = '';
+        document.getElementById("galleryTag").value = 'CAMPUS';
+        document.getElementById("galleryOrder").value = state.data.gallery.length + 1;
+        previewImg.classList.add("hidden");
+        previewPlc.classList.remove("hidden");
       }
-
       document.getElementById("galleryModal").classList.remove("hidden");
-      lucide.createIcons();
     }
 
     function closeGalleryModal() {
       document.getElementById("galleryModal").classList.add("hidden");
     }
 
-    function onGalleryPhotoUploaded(url) {
-      document.getElementById("galleryImageUrl").value = url;
-      document.getElementById("galleryFilePreview").src = url;
-      document.getElementById("galleryFilePreviewContainer").classList.remove("hidden");
-      document.getElementById("galleryUploadBox").classList.add("hidden");
+    function updateGalleryPreview(url) {
+      const previewImg = document.getElementById("galleryLiveImg");
+      const previewPlc = document.getElementById("galleryPreviewPlc");
+      if (url && url.trim().length > 5) {
+        previewImg.src = url.trim();
+        previewImg.classList.remove("hidden");
+        previewPlc.classList.add("hidden");
+      } else {
+        previewImg.classList.add("hidden");
+        previewPlc.classList.remove("hidden");
+      }
     }
 
     function editGallery(id) {
@@ -1904,176 +1586,72 @@
 
     async function handleSaveGallery(e) {
       e.preventDefault();
-      const saveBtn = document.getElementById("saveGalleryBtn");
-      saveBtn.disabled = true;
-
       const origId = document.getElementById("galleryOriginalId").value;
-      const url = document.getElementById("galleryImageUrl").value.trim();
-      const title = document.getElementById("galleryTitle").value.trim();
-      const tag = (document.getElementById("galleryTag").value.trim() || "CAMPUS").toUpperCase();
-      const desc = document.getElementById("galleryDescription").value.trim();
-
-      const galleryPayload = { title: title, url: url, description: desc, tag: tag };
+      const payload = {
+        title: document.getElementById("galleryTitle").value.trim(),
+        tag: (document.getElementById("galleryTag").value.trim() || 'CAMPUS').toUpperCase(),
+        display_order: parseInt(document.getElementById("galleryOrder").value) || (state.data.gallery.length + 1),
+        url: document.getElementById("galleryUrl").value.trim(),
+        description: document.getElementById("galleryDesc").value.trim()
+      };
 
       try {
         if (origId) {
-          galleryPayload.id = parseInt(origId);
-          const idx = state.data.gallery.findIndex(g => g.id === parseInt(origId));
-          if (idx !== -1) state.data.gallery[idx] = galleryPayload;
-          if (supabaseClient) await supabaseClient.from('gallery').update(galleryPayload).eq('id', origId);
+          payload.id = parseInt(origId);
+          await supabaseClient.from('gallery').update(payload).eq('id', origId);
+          showToast("Photo updated!", "success");
         } else {
-          galleryPayload.id = Date.now();
-          galleryPayload.display_order = state.data.gallery.length + 1;
-          state.data.gallery.push(galleryPayload);
-          if (supabaseClient) await supabaseClient.from('gallery').insert([galleryPayload]);
+          await supabaseClient.from('gallery').insert([payload]);
+          showToast("Photo added!", "success");
         }
-
-        renderGalleryGrid();
-        showToast("Photo saved to Supabase Gallery!", "success");
         closeGalleryModal();
+        await loadSupabaseData(false);
       } catch (err) {
-        showToast("Saved locally: " + err.message, "info");
-      } finally {
-        saveBtn.disabled = false;
+        showToast(err.message, "error");
       }
     }
 
-    function renderSettingsData() {
-      const settings = state.data.settings || [];
-      const logoSetting = settings.find(s => s.key && s.key.toLowerCase() === "logo");
-      const logoUrl = logoSetting ? logoSetting.value : "https://apiimage.astutebd.com/Uploads/bnsck/maincampus/About%20School//1072021113810AMzx.png";
+    // =========================================================================
+    // IN-APP CONFIRMATION MODAL & DELETE (NO ALERT / CONFIRM)
+    // =========================================================================
+    let pendingDeletion = null;
 
-      const logoImg = document.getElementById("settingsLogoPreview");
-      const logoPlc = document.getElementById("settingsLogoPlaceholder");
-      const logoInput = document.getElementById("settingLogoUrl");
-
-      if (logoUrl) {
-        logoImg.src = logoUrl;
-        logoImg.classList.remove("hidden");
-        logoPlc.classList.add("hidden");
-        logoInput.value = logoUrl;
-      }
-
-      const titleSetting = settings.find(s => s.key && s.key.toLowerCase() === "title");
-      if (titleSetting) document.getElementById("settingSiteTitle").value = titleSetting.value || "";
-
-      const marqueeSetting = settings.find(s => s.key && (s.key.toLowerCase() === "marquee" || s.key.toLowerCase() === "notice"));
-      if (marqueeSetting) document.getElementById("settingNoticeBar").value = marqueeSetting.value || "";
-    }
-
-    async function handleLogoUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const uploadBtn = document.getElementById("logoUploadBtn");
-      uploadBtn.disabled = true;
+    function requestDeleteRecord(table, col, val, label) {
+      pendingDeletion = { table, col, val };
+      document.getElementById("confirmModalTitle").textContent = `Delete ${label}?`;
+      document.getElementById("confirmModalDesc").textContent = `This will permanently remove the record from '${table}'.`;
       
+      const actionBtn = document.getElementById("confirmModalActionBtn");
+      actionBtn.onclick = executePendingDeletion;
+      document.getElementById("confirmModal").classList.remove("hidden");
+    }
+
+    function closeConfirmModal() {
+      document.getElementById("confirmModal").classList.add("hidden");
+      pendingDeletion = null;
+    }
+
+    async function executePendingDeletion() {
+      if (!pendingDeletion) return;
+      const { table, col, val } = pendingDeletion;
       try {
-        const url = await uploadToSupabaseStorage(file, "settings");
-        document.getElementById("settingLogoUrl").value = url;
-        
-        const logoImg = document.getElementById("settingsLogoPreview");
-        logoImg.src = url;
-        logoImg.classList.remove("hidden");
-        document.getElementById("settingsLogoPlaceholder").classList.add("hidden");
-        
-        showToast("Logo uploaded to Supabase Storage", "success");
+        await supabaseClient.from(table).delete().eq(col, val);
+        showToast("Record deleted", "info");
+        closeConfirmModal();
+        await loadSupabaseData(false);
       } catch (err) {
-        showToast("Logo upload error: " + err.message, "error");
-      } finally {
-        uploadBtn.disabled = false;
+        showToast(err.message, "error");
+        closeConfirmModal();
       }
     }
 
-    async function handleSaveSettings(e) {
-      e.preventDefault();
-      const saveBtn = document.getElementById("saveSettingsBtn");
-      saveBtn.disabled = true;
-
-      const logo = document.getElementById("settingLogoUrl").value.trim();
-      const title = document.getElementById("settingSiteTitle").value.trim();
-      const marquee = document.getElementById("settingNoticeBar").value.trim();
-
-      try {
-        const records = [];
-        if (logo) records.push({ key: "Logo", value: logo, updated_at: new Date().toISOString() });
-        if (title) records.push({ key: "Title", value: title, updated_at: new Date().toISOString() });
-        if (marquee) records.push({ key: "Marquee", value: marquee, updated_at: new Date().toISOString() });
-
-        state.data.settings = records;
-        if (supabaseClient && records.length > 0) {
-          await supabaseClient.from('settings').upsert(records, { onConflict: 'key' });
-        }
-
-        showToast("Settings updated in Supabase!", "success");
-      } catch (err) {
-        showToast("Saved locally: " + err.message, "info");
-      } finally {
-        saveBtn.disabled = false;
-      }
-    }
-
-    function initSettingsFormValues() {
-      document.getElementById("configSupabaseUrl").value = CONFIG.SUPABASE_URL;
-      document.getElementById("configSupabaseKey").value = CONFIG.SUPABASE_ANON_KEY;
-      document.getElementById("configStorageBucket").value = CONFIG.STORAGE_BUCKET;
-    }
-
-    let pendingDeleteAction = null;
-
-    function confirmDelete(table, idField, idValue, displayName) {
-      document.getElementById("confirmTitle").textContent = `Delete ${displayName}?`;
-      document.getElementById("confirmMessage").textContent = `Are you sure you want to delete this record from '${table}'? Your database will be updated immediately.`;
-      
-      pendingDeleteAction = async () => {
-        try {
-          if (table === 'students') {
-            state.data.students = state.data.students.filter(s => String(s.roll) !== String(idValue));
-            renderStudentsTable();
-          } else if (table === 'notices') {
-            state.data.notices = state.data.notices.filter(n => String(n.id) !== String(idValue));
-            renderNoticesTable();
-          } else if (table === 'timeline') {
-            state.data.timeline = state.data.timeline.filter(t => String(t.id) !== String(idValue));
-            renderTimelineTable();
-          } else if (table === 'capsule') {
-            state.data.capsule = state.data.capsule.filter(c => String(c.id) !== String(idValue));
-            renderCapsuleTable();
-          } else if (table === 'gallery') {
-            state.data.gallery = state.data.gallery.filter(g => String(g.id) !== String(idValue));
-            renderGalleryGrid();
-          }
-
-          if (supabaseClient) {
-            await supabaseClient.from(table).delete().eq(idField, idValue);
-          }
-
-          showToast(`${displayName} deleted successfully`, "success");
-        } catch (err) {
-          showToast("Deleted locally: " + err.message, "info");
-        } finally {
-          closeConfirmDialog();
-        }
-      };
-
-      document.getElementById("confirmProceedBtn").onclick = pendingDeleteAction;
-      document.getElementById("confirmDialog").classList.remove("hidden");
-    }
-
-    function closeConfirmDialog() {
-      document.getElementById("confirmDialog").classList.add("hidden");
-      pendingDeleteAction = null;
-    }
-
-    function switchTab(tabName) {
-      state.activeTab = tabName;
-      
-      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.add("hidden"));
-      const activePane = document.getElementById("tab-" + tabName);
-      if (activePane) activePane.classList.remove("hidden");
+    function switchTab(tab) {
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.add("hidden"));
+      const target = document.getElementById("tab-" + tab);
+      if (target) target.classList.remove("hidden");
 
       document.querySelectorAll(".nav-link").forEach(btn => {
-        if (btn.dataset.tab === tabName) {
+        if (btn.dataset.tab === tab) {
           btn.classList.add("bg-cyan-600/20", "text-cyan-300", "font-semibold");
           btn.classList.remove("text-slate-300");
         } else {
@@ -2081,102 +1659,121 @@
           btn.classList.add("text-slate-300");
         }
       });
-
-      const tabTitles = {
-        dashboard: ["Dashboard Overview", "Class Section A Supabase management console"],
-        students: ["Students (Class Roster)", "Manage student IDs, rolls, photos and badges"],
-        notices: ["Notice Board", "Publish announcements, popup alerts and attachments"],
-        timeline: ["Batch Milestones", "Academic timeline events and calendar"],
-        capsule: ["Time Capsule", "Archive memories and campus recollections"],
-        gallery: ["Photo Gallery", "Cloud-hosted campus and laboratory photo repository"],
-        settings: ["Website Settings & Keys", "Global logo, title, marquee and Supabase endpoints"]
-      };
-
-      if (tabTitles[tabName]) {
-        document.getElementById("topBarTitle").textContent = tabTitles[tabName][0];
-        document.getElementById("topBarSubtitle").textContent = tabTitles[tabName][1];
-      }
-
-      const sidebar = document.getElementById("sidebar");
-      const backdrop = document.getElementById("sidebarBackdrop");
-      if (sidebar && !sidebar.classList.contains("-translate-x-full") && window.innerWidth < 768) {
-        toggleMobileSidebar();
-      }
-
       lucide.createIcons();
     }
 
     function toggleMobileSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      const backdrop = document.getElementById("sidebarBackdrop");
-      if (!sidebar) return;
+      const sb = document.getElementById("sidebar");
+      const bd = document.getElementById("sidebarBackdrop");
+      sb.classList.toggle("-translate-x-full");
+      bd.classList.toggle("hidden");
+    }
 
-      const isHidden = sidebar.classList.contains("-translate-x-full");
-      if (isHidden) {
-        sidebar.classList.remove("-translate-x-full");
-        if (backdrop) backdrop.classList.remove("hidden");
-      } else {
-        sidebar.classList.add("-translate-x-full");
-        if (backdrop) backdrop.classList.add("hidden");
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const el = document.createElement("div");
+      el.className = `px-4 py-2.5 rounded-xl border text-xs font-semibold shadow-xl fade-in ${
+        type === 'success' ? 'bg-emerald-950 border-emerald-500/40 text-emerald-200' :
+        type === 'error' ? 'bg-rose-950 border-rose-500/40 text-rose-200' :
+        'bg-surface-850 border-surface-700 text-slate-200'
+      }`;
+      el.textContent = msg;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    // =========================================================================
+    // SUPABASE STORAGE DIRECT UPLOADER LOGIC
+    // Flow: local file -> Supabase bucket 'bnsck' -> get publicUrl -> set table input
+    // =========================================================================
+    async function uploadToSupabaseStorageBucket(file, folder = 'general') {
+      if (!supabaseClient) initSupabase();
+
+      const bucket = CONFIG.STORAGE_BUCKET || 'bnsck';
+      const cleanName = `${folder}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+      const { data, error } = await supabaseClient.storage
+        .from(bucket)
+        .upload(cleanName, file, { cacheControl: '3600', upsert: true });
+
+      if (error) {
+        throw error;
+      }
+
+      const { data: { publicUrl } } = supabaseClient.storage
+        .from(bucket)
+        .getPublicUrl(cleanName);
+
+      return publicUrl;
+    }
+
+    async function handleStorageUpload(event, folder, inputId, previewImgId, submitBtnId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const submitBtn = submitBtnId ? document.getElementById(submitBtnId) : null;
+      const targetInput = document.getElementById(inputId);
+      let origBtnText = '';
+
+      if (submitBtn) {
+        origBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span>Uploading to Supabase...</span>`;
+      }
+
+      showToast(`Uploading ${file.name} to Supabase Storage...`, 'info');
+
+      try {
+        const publicUrl = await uploadToSupabaseStorageBucket(file, folder);
+        
+        if (targetInput) {
+          targetInput.value = publicUrl;
+          targetInput.dispatchEvent(new Event('input'));
+        }
+
+        if (previewImgId) {
+          const previewImg = document.getElementById(previewImgId);
+          if (previewImg) {
+            previewImg.src = publicUrl;
+            previewImg.classList.remove('hidden');
+          }
+        }
+
+        showToast('Image uploaded & URL connected!', 'success');
+      } catch (err) {
+        console.error('Storage upload error:', err);
+        showToast(`Upload failed: ${err.message}`, 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = origBtnText;
+        }
+        event.target.value = ''; // Reset input so same file can be re-selected if needed
       }
     }
 
-    function showToast(message, type = "info") {
-      const container = document.getElementById("toastContainer");
-      const toast = document.createElement("div");
-      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-xl text-xs font-medium fade-in ${
-        type === "success" ? "bg-emerald-950/90 border-emerald-500/30 text-emerald-200" :
-        type === "error" ? "bg-rose-950/90 border-rose-500/30 text-rose-200" :
-        type === "warning" ? "bg-amber-950/90 border-amber-500/30 text-amber-200" :
-        "bg-surface-850/95 border-surface-700/80 text-slate-200"
-      }`;
+    function updatePreviewImage(imgId, url, fallbackId) {
+      const img = document.getElementById(imgId);
+      const fallback = fallbackId ? document.getElementById(fallbackId) : null;
+      if (!img) return;
 
-      const iconName = type === "success" ? "check-circle-2" : type === "error" ? "alert-circle" : "info";
-
-      toast.innerHTML = `
-        <i data-lucide="${iconName}" class="w-4 h-4 shrink-0"></i>
-        <span class="flex-1">${escapeHtml(message)}</span>
-      `;
-
-      container.appendChild(toast);
-      lucide.createIcons();
-
-      setTimeout(() => {
-        toast.style.opacity = "0";
-        toast.style.transform = "translateY(-4px)";
-        toast.style.transition = "all 0.2s ease";
-        setTimeout(() => toast.remove(), 200);
-      }, 3500);
+      if (url && url.trim().length > 5) {
+        img.src = url.trim();
+        img.classList.remove('hidden');
+        if (fallback) fallback.classList.add('hidden');
+      } else {
+        img.classList.add('hidden');
+        if (fallback) fallback.classList.remove('hidden');
+      }
     }
 
     function escapeHtml(str) {
-      if (str === null || str === undefined) return "";
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
+    document.addEventListener("DOMContentLoaded", () => {
       initSupabase();
-      if (supabaseClient && supabaseClient.auth) {
-        try {
-          const { data: { session } } = await supabaseClient.auth.getSession();
-          if (session && session.user) {
-            state.user = session.user;
-            document.getElementById("loginView").classList.add("hidden");
-            document.getElementById("adminApp").classList.remove("hidden");
-            document.getElementById("userName").textContent = session.user.email ? session.user.email.split('@')[0] : "Administrator";
-            initSettingsFormValues();
-            await loadSupabaseData(false);
-          }
-        } catch (e) {
-          console.warn("Session check note:", e);
-        }
-      }
-      renderAllTables();
       lucide.createIcons();
     });
   </script>
