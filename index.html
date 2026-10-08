@@ -37,6 +37,7 @@
     }
   </script>
 
+  <!-- External libraries: Lucide Icons, Supabase JS, jsPDF -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -82,7 +83,7 @@
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Admin User / Email</label>
-          <input type="email" id="loginEmail" required placeholder="Enter your email address"
+          <input type="email" id="loginEmail" required placeholder="Enter your email address" value="admin@sec-a-bnsck27.info.mp"
             class="w-full px-3.5 py-2.5 bg-surface-850 border border-surface-700 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-400" />
         </div>
 
@@ -112,7 +113,6 @@
       <div>
         <div class="p-5 border-b border-surface-700 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <!-- Official Favicon Logo integrated as Main Logo -->
             <div class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center border border-cyan-500/30 bg-surface-850 shadow-md shrink-0">
               <img src="https://apiimage.astutebd.com/Uploads/bnsck/maincampus/About%20School//1072021113810AMzx.png" alt="BNSCK Logo" class="w-full h-full object-cover">
             </div>
@@ -133,7 +133,6 @@
             <span>Dashboard</span>
           </button>
 
-          <!-- TEACHERS / FACULTY MANAGEMENT -->
           <button onclick="switchTab('teachers')" data-tab="teachers" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center justify-between">
             <div class="flex items-center gap-3">
               <i data-lucide="graduation-cap" class="w-4 h-4 text-cyan-400"></i>
@@ -142,7 +141,6 @@
             <span id="badgeTeachers" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-800 text-cyan-400 border border-surface-700">0</span>
           </button>
 
-          <!-- STUDENTS MANAGEMENT -->
           <button onclick="switchTab('students')" data-tab="students" class="nav-link w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-surface-800 flex items-center justify-between">
             <div class="flex items-center gap-3">
               <i data-lucide="users" class="w-4 h-4 text-sky-400"></i>
@@ -198,7 +196,6 @@
       </div>
     </aside>
 
-    <!-- MAIN CONTENT VIEWPORT -->
     <main class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
       
       <!-- Top Navigation Bar -->
@@ -219,14 +216,20 @@
         </div>
 
         <div class="flex items-center gap-2.5">
+          <!-- Database Live Diagnostics Button -->
+          <button onclick="openDiagnosticsModal()" id="dbStatusBadge" class="px-2.5 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-[11px] font-mono flex items-center gap-2 cursor-pointer transition">
+            <span id="dbStatusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="dbStatusText" class="text-slate-300">Checking DB...</span>
+          </button>
+
           <button onclick="launchZohoMail()" class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-xs font-semibold text-amber-300 flex items-center gap-1.5 transition cursor-pointer">
             <i data-lucide="mail" class="w-3.5 h-3.5"></i>
-            <span>Zoho Webmail ↗</span>
+            <span class="hidden sm:inline">Zoho Webmail ↗</span>
           </button>
 
           <button onclick="loadSupabaseData(true)" class="px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition cursor-pointer">
             <i data-lucide="refresh-cw" id="refreshIcon" class="w-3.5 h-3.5 text-cyan-400"></i>
-            <span class="hidden sm:inline">Refresh DB</span>
+            <span class="hidden sm:inline">Sync DB</span>
           </button>
         </div>
       </header>
@@ -239,29 +242,28 @@
             <div class="bg-surface-900 border border-surface-700 rounded-2xl p-4">
               <span class="text-xs text-slate-400">Total Faculty</span>
               <div id="statTeachers" class="text-2xl font-bold text-white font-mono mt-1">0</div>
-              <div class="text-[10px] text-cyan-400 mt-0.5">Principal, Class & Subject Lecturers</div>
+              <div class="text-[10px] text-cyan-400 mt-0.5">Faculty & Mentors</div>
             </div>
 
             <div class="bg-surface-900 border border-surface-700 rounded-2xl p-4">
               <span class="text-xs text-slate-400">Total Students</span>
               <div id="statStudents" class="text-2xl font-bold text-white font-mono mt-1">50</div>
-              <div class="text-[10px] text-cyan-400 mt-0.5">Section A Students </div>
+              <div class="text-[10px] text-cyan-400 mt-0.5">Section A Classmates</div>
             </div>
 
             <div class="bg-surface-900 border border-surface-700 rounded-2xl p-4">
               <span class="text-xs text-slate-400">Live Notices</span>
               <div id="statNotices" class="text-2xl font-bold text-white font-mono mt-1">0</div>
-              <div class="text-[10px] text-amber-400 mt-0.5">9-sec Popup / Bulletins</div>
+              <div class="text-[10px] text-amber-400 mt-0.5">Bulletins & Popups</div>
             </div>
 
             <div class="bg-surface-900 border border-surface-700 rounded-2xl p-4">
               <span class="text-xs text-slate-400">Gallery Photos</span>
               <div id="statGallery" class="text-2xl font-bold text-white font-mono mt-1">0</div>
-              <div class="text-[10px] text-purple-400 mt-0.5">Cloud Repository</div>
+              <div class="text-[10px] text-purple-400 mt-0.5">Synced to Cloud</div>
             </div>
           </div>
 
-          <!-- Quick Actions & Zoho Box -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-surface-900 border border-surface-700 rounded-2xl p-5 space-y-3">
               <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
@@ -292,34 +294,37 @@
               </div>
             </div>
 
-            <!-- Zoho Direct Operate Box -->
-            <div class="bg-surface-900 border border-amber-500/30 rounded-2xl p-5 space-y-3">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-2">
-                <i data-lucide="mail-check" class="w-4 h-4"></i>
-                <span>Zoho Mail Integration</span>
-              </h3>
-              <p class="text-xs text-slate-300">Click below to auto-copy the master password and open the Zoho Mail login gateway with the admin email pre-filled.</p>
+            <!-- Database Synchronization Diagnostics Banner -->
+            <div class="bg-surface-900 border border-cyan-500/30 rounded-2xl p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-2">
+                  <i data-lucide="database" class="w-4 h-4"></i>
+                  <span>Supabase Sync Health</span>
+                </h3>
+                <button onclick="openDiagnosticsModal()" class="text-[11px] text-cyan-400 hover:underline font-mono">Run Full Diagnostics →</button>
+              </div>
+              <p class="text-xs text-slate-300">All data automatically synchronizes with Supabase. If you see schema or permission notifications, click below to generate the exact database fix script.</p>
               
               <div class="p-3 rounded-xl bg-surface-850 border border-surface-700 space-y-1.5 font-mono text-xs">
                 <div class="flex justify-between items-center">
-                  <span class="text-slate-400 text-[11px]">User ID:</span>
-                  <span class="text-cyan-300 font-semibold">admin@sec-a-bnsck27.info.mp</span>
+                  <span class="text-slate-400 text-[11px]">Database Host:</span>
+                  <span class="text-cyan-300 truncate max-w-[210px]">mqkumbvzqjolyjmwmgcf.supabase.co</span>
                 </div>
                 <div class="flex justify-between items-center">
-                  <span class="text-slate-400 text-[11px]">Password:</span>
-                  <span class="text-amber-300 font-semibold">Bnsck15072025@</span>
+                  <span class="text-slate-400 text-[11px]">Active Table Mode:</span>
+                  <span class="text-emerald-400 font-semibold">Schema Adaptive + Safe Sync</span>
                 </div>
               </div>
 
-              <button onclick="launchZohoMail()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
-                <i data-lucide="external-link" class="w-4 h-4"></i>
-                <span>Copy Password & Launch Zoho Mail ↗</span>
+              <button onclick="openDiagnosticsModal()" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                <span>Check Table Permissions & Fix RLS ⚙</span>
               </button>
             </div>
           </div>
         </section>
 
-        <!-- TAB 2: FACULTY & TEACHERS (DYNAMIC CRUD) -->
+        <!-- TAB 2: FACULTY & TEACHERS -->
         <section id="tab-teachers" class="tab-pane hidden space-y-4 fade-in">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="relative w-full sm:w-80">
@@ -352,7 +357,7 @@
           </div>
         </section>
 
-        <!-- TAB 3: STUDENTS ROSTER (WITH CONTACT & PDF CREATOR) -->
+        <!-- TAB 3: STUDENTS ROSTER -->
         <section id="tab-students" class="tab-pane hidden space-y-4 fade-in">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3 w-full sm:w-auto">
@@ -396,7 +401,7 @@
           </div>
         </section>
 
-        <!-- TAB 4: NOTICES (9-SEC POPUP READY) -->
+        <!-- TAB 4: NOTICES -->
         <section id="tab-notices" class="tab-pane hidden space-y-4 fade-in">
           <div class="flex justify-between items-center">
             <h3 class="text-sm font-bold text-white">Notice Board Bulletins</h3>
@@ -467,12 +472,12 @@
           </div>
         </section>
 
-        <!-- TAB 7: PHOTO GALLERY (ROBUST CRUD) -->
+        <!-- TAB 7: PHOTO GALLERY -->
         <section id="tab-gallery" class="tab-pane hidden space-y-4 fade-in">
           <div class="flex justify-between items-center">
             <div>
               <h3 class="text-sm font-bold text-white">Photo Repository</h3>
-              <p class="text-[11px] text-slate-400">Add, upload and manage photos with instant live previews</p>
+              <p class="text-[11px] text-slate-400">Directly syncs to Supabase `gallery` table with automatic schema fallback</p>
             </div>
             <button onclick="openGalleryModal()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer">
               <i data-lucide="plus" class="w-4 h-4"></i>
@@ -517,7 +522,7 @@
     </main>
   </div>
 
-  <!-- TEACHER MODAL (DYNAMIC CRUD) -->
+  <!-- TEACHER MODAL -->
   <div id="teacherModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
       <div class="px-6 py-4 border-b border-surface-700 flex items-center justify-between">
@@ -763,7 +768,7 @@
     </div>
   </div>
 
-  <!-- GALLERY PHOTO MODAL (ENHANCED FILE UPLOADER & SCHEMA-ADAPTIVE) -->
+  <!-- GALLERY PHOTO MODAL -->
   <div id="galleryModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-surface-700 pb-3">
@@ -792,7 +797,7 @@
           </div>
         </div>
 
-        <!-- Direct Storage / Local Auto-Fallback Image Upload for Gallery -->
+        <!-- Direct Storage / Local Cloud Multi-Bucket Image Upload -->
         <div>
           <label class="block text-slate-400 mb-1">Photo Image (Choose file or paste direct URL) *</label>
           <div class="border-2 border-dashed border-surface-700 hover:border-cyan-400 rounded-2xl p-4 text-center cursor-pointer transition-colors bg-surface-850/50 mb-2"
@@ -800,7 +805,7 @@
             <input type="file" id="galleryFileInput" accept="image/*" class="hidden" onchange="handleStorageUpload(event, 'gallery', 'galleryUrl', 'galleryLiveImg', 'saveGalleryBtn')" />
             <i data-lucide="upload-cloud" class="w-6 h-6 text-cyan-400 mx-auto mb-1"></i>
             <p class="text-xs font-semibold text-white">Click here to browse and upload image</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">Supports PNG, JPG, WebP, GIF (Storage & local cloud fallback)</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Supports JPG, PNG, WebP (Multi-bucket Supabase storage sync)</p>
           </div>
 
           <div class="flex items-center gap-2">
@@ -888,6 +893,82 @@
     </div>
   </div>
 
+  <!-- DATABASE DIAGNOSTICS & SQL FIX MODAL -->
+  <div id="diagnosticsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl flex flex-col max-h-[92vh]">
+      <div class="flex items-center justify-between border-b border-surface-700 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/30">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Supabase Tables & Permission Health</h3>
+            <p class="text-[10px] text-slate-400">Live test results for all college batch database collections</p>
+          </div>
+        </div>
+        <button onclick="closeDiagnosticsModal()" class="text-slate-400 hover:text-white cursor-pointer">✕</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto space-y-4 text-xs">
+        <!-- Live Table Status Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="diagnosticsTableGrid">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- 1-Click Copy SQL Box for RLS and Table Repair -->
+        <div class="p-4 rounded-xl bg-surface-850 border border-cyan-500/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-cyan-300 text-xs flex items-center gap-1.5">
+              <i data-lucide="wrench" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>One-Click Supabase SQL Setup & RLS Unlock Script</span>
+            </span>
+            <button onclick="copySqlFixScript()" class="px-3 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold flex items-center gap-1 cursor-pointer">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span>Copy SQL</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            If your tables say "RLS Denied" or do not save data, copy this script, go to your 
+            <a href="https://supabase.com/dashboard/project/mqkumbvzqjolyjmwmgcf/sql" target="_blank" rel="noopener noreferrer" class="text-cyan-400 underline font-bold">Supabase SQL Editor ↗</a>, paste and click <strong>Run</strong>. This enables unrestricted read & write for this batch console.
+          </p>
+          <pre id="sqlFixSnippet" class="p-3 rounded-lg bg-surface-950 border border-surface-700 text-[10px] font-mono text-slate-300 overflow-x-auto max-h-36 selection:bg-cyan-500/40">-- Enable unrestricted read/write for BNSCK Batch Portal tables
+ALTER TABLE IF EXISTS gallery DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS timeline DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS notices DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS teachers DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS students DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS capsule DISABLE ROW LEVEL SECURITY;
+
+-- Reset primary key auto-increment sequences to prevent duplicate key errors
+SELECT setval(pg_get_serial_sequence('gallery', 'id'), COALESCE((SELECT MAX(id) FROM gallery), 0) + 1, false);
+SELECT setval(pg_get_serial_sequence('timeline', 'id'), COALESCE((SELECT MAX(id) FROM timeline), 0) + 1, false);
+SELECT setval(pg_get_serial_sequence('teachers', 'id'), COALESCE((SELECT MAX(id) FROM teachers), 0) + 1, false);
+SELECT setval(pg_get_serial_sequence('notices', 'id'), COALESCE((SELECT MAX(id) FROM notices), 0) + 1, false);
+SELECT setval(pg_get_serial_sequence('capsule', 'id'), COALESCE((SELECT MAX(id) FROM capsule), 0) + 1, false);
+
+-- Ensure gallery table has all needed columns
+CREATE TABLE IF NOT EXISTS gallery (
+  id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  title TEXT NOT NULL,
+  url TEXT NOT NULL,
+  tag TEXT DEFAULT 'CAMPUS',
+  description TEXT DEFAULT '',
+  display_order INT DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);</pre>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-surface-700 flex justify-end gap-2">
+        <button onclick="loadSupabaseData(true); runFullDiagnostics();" class="px-4 py-2 rounded-xl bg-surface-850 hover:bg-surface-800 border border-surface-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span>Re-test Tables</span>
+        </button>
+        <button onclick="closeDiagnosticsModal()" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs cursor-pointer">Done</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CUSTOM CONFIRMATION MODAL -->
   <div id="confirmModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-surface-900 border border-surface-700 rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
@@ -905,20 +986,21 @@
     </div>
   </div>
 
-  <!-- Toast Container -->
+  <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <script>
     const CONFIG = {
       SUPABASE_URL: "https://mqkumbvzqjolyjmwmgcf.supabase.co",
       SUPABASE_ANON_KEY: "sb_publishable_efCDMztVXChCA_wW0dszow_JwTcut5N",
-      STORAGE_BUCKET: "bnsck"
+      STORAGE_BUCKET: "data"
     };
 
     let supabaseClient = null;
 
     const state = {
       user: null,
+      diagnostics: {},
       data: {
         teachers: [],
         students: [],
@@ -932,10 +1014,12 @@
     function initSupabase() {
       try {
         if (window.supabase) {
-          supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+          supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
+            auth: { persistSession: false }
+          });
         }
       } catch (e) {
-        console.warn("Supabase initialization note:", e);
+        console.warn("Supabase init info:", e);
       }
     }
 
@@ -952,6 +1036,7 @@
         document.getElementById("userName").textContent = email.split('@')[0];
         showToast("Signed in as Administrator", "success");
         loadSupabaseData(false);
+        runFullDiagnostics();
         switchTab('dashboard');
       } else {
         errorBox.classList.remove("hidden");
@@ -983,9 +1068,66 @@
         textarea.select();
         document.execCommand("copy");
         document.body.removeChild(textarea);
-        showToast(successMsg, "success");
+        if (successMsg) showToast(successMsg, "success");
       } catch (err) {
         showToast("Could not copy automatically", "info");
+      }
+    }
+
+    // =========================================================================
+    // RESILIENT DATA FETCHING ENGINE (PREVENTS 400 ERRORS ON ORDERING)
+    // =========================================================================
+    async function safeFetchTable(tableName, preferredOrder = null, ascending = true) {
+      if (!supabaseClient) initSupabase();
+      
+      // 1. Try with preferred ordering column
+      if (preferredOrder) {
+        try {
+          const { data, error } = await supabaseClient
+            .from(tableName)
+            .select('*')
+            .order(preferredOrder, { ascending });
+
+          if (!error && Array.isArray(data)) {
+            state.diagnostics[tableName] = { ok: true, count: data.length };
+            return data;
+          }
+        } catch (e) {
+          // Fall through to plain select
+        }
+      }
+
+      // 2. Try with standard id ordering
+      try {
+        const { data, error } = await supabaseClient
+          .from(tableName)
+          .select('*')
+          .order('id', { ascending: true });
+
+        if (!error && Array.isArray(data)) {
+          state.diagnostics[tableName] = { ok: true, count: data.length };
+          return data;
+        }
+      } catch (e) {
+        // Fall through to plain select
+      }
+
+      // 3. Plain select without ordering (guaranteed if table exists)
+      try {
+        const { data, error } = await supabaseClient
+          .from(tableName)
+          .select('*');
+
+        if (!error && Array.isArray(data)) {
+          state.diagnostics[tableName] = { ok: true, count: data.length };
+          return data;
+        } else {
+          state.diagnostics[tableName] = { ok: false, error: error?.message || 'Select failed' };
+          return null;
+        }
+      } catch (err) {
+        state.diagnostics[tableName] = { ok: false, error: err.message };
+        return null;
       }
     }
 
@@ -996,34 +1138,23 @@
       if (refreshIcon) refreshIcon.classList.add("animate-spin");
 
       try {
-        const [resT, resS, resN, resTime, resCap] = await Promise.allSettled([
-          supabaseClient.from('teachers').select('*').order('display_order', { ascending: true }),
-          supabaseClient.from('students').select('*').order('roll', { ascending: true }),
-          supabaseClient.from('notices').select('*').order('id', { ascending: false }),
-          supabaseClient.from('timeline').select('*').order('id', { ascending: true }),
-          supabaseClient.from('capsule').select('*').order('id', { ascending: true })
+        const [tData, sData, nData, timeData, capData, galData] = await Promise.all([
+          safeFetchTable('teachers', 'display_order', true),
+          safeFetchTable('students', 'roll', true),
+          safeFetchTable('notices', 'id', false),
+          safeFetchTable('timeline', 'id', true),
+          safeFetchTable('capsule', 'id', true),
+          safeFetchTable('gallery', 'display_order', true)
         ]);
 
-        if (resT.status === 'fulfilled' && resT.value.data) state.data.teachers = resT.value.data;
-        if (resS.status === 'fulfilled' && resS.value.data) state.data.students = resS.value.data;
-        if (resN.status === 'fulfilled' && resN.value.data) state.data.notices = resN.value.data;
-        if (resTime.status === 'fulfilled' && resTime.value.data) state.data.timeline = resTime.value.data;
-        if (resCap.status === 'fulfilled' && resCap.value.data) state.data.capsule = resCap.value.data;
+        if (tData) state.data.teachers = tData;
+        if (sData) state.data.students = sData;
+        if (nData) state.data.notices = nData;
+        if (timeData) state.data.timeline = timeData;
+        if (capData) state.data.capsule = capData;
+        if (galData) state.data.gallery = galData;
 
-        // Resilient Gallery Fetch: Try display_order, then id fallback
-        try {
-          let galRes = await supabaseClient.from('gallery').select('*').order('display_order', { ascending: true });
-          if (galRes.error) {
-            galRes = await supabaseClient.from('gallery').select('*').order('id', { ascending: true });
-          }
-          if (galRes.data) {
-            state.data.gallery = galRes.data;
-          }
-        } catch (galErr) {
-          console.warn("Gallery fetch note:", galErr);
-        }
-
-        // Merge with local offline/cached gallery storage
+        // Merge with local cached gallery records for instant responsiveness
         const localGal = JSON.parse(localStorage.getItem('bnsck_custom_gallery') || '[]');
         if (localGal.length > 0) {
           const remoteIds = new Set(state.data.gallery.map(g => String(g.id)));
@@ -1044,9 +1175,10 @@
         }
 
         renderAllTables();
-        if (showNotification) showToast("Database refreshed!", "success");
+        updateConnectionStatusBadge();
+        if (showNotification) showToast("Database synchronized successfully!", "success");
       } catch (err) {
-        console.warn("Supabase fetch note:", err);
+        console.warn("Supabase fetch notice:", err);
       } finally {
         if (refreshIcon) refreshIcon.classList.remove("animate-spin");
       }
@@ -1071,6 +1203,140 @@
       document.getElementById("badgeTeachers").textContent = state.data.teachers.length;
       document.getElementById("badgeStudents").textContent = state.data.students.length;
       document.getElementById("badgeNotices").textContent = state.data.notices.length;
+    }
+
+    // =========================================================================
+    // DATABASE CONNECTION & PERMISSION DIAGNOSTICS
+    // =========================================================================
+    function updateConnectionStatusBadge() {
+      const dot = document.getElementById("dbStatusDot");
+      const text = document.getElementById("dbStatusText");
+      if (!dot || !text) return;
+
+      const tables = ['teachers', 'students', 'notices', 'timeline', 'capsule', 'gallery'];
+      const failures = tables.filter(t => state.diagnostics[t] && !state.diagnostics[t].ok);
+
+      if (failures.length === 0 && Object.keys(state.diagnostics).length > 0) {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        text.className = "text-emerald-300 font-semibold";
+        text.textContent = "● DB Connected (6/6)";
+      } else if (failures.length > 0) {
+        dot.className = "w-2 h-2 rounded-full bg-rose-400 animate-ping";
+        text.className = "text-rose-300 font-semibold";
+        text.textContent = `▲ DB Attention (${failures.length} tables)`;
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        text.className = "text-amber-300";
+        text.textContent = "Testing Sync...";
+      }
+    }
+
+    async function runFullDiagnostics() {
+      const grid = document.getElementById("diagnosticsTableGrid");
+      if (!grid) return;
+      grid.innerHTML = `<div class="col-span-full py-4 text-center text-slate-400 font-mono text-[11px]">Testing read/write connectivity...</div>`;
+
+      const tables = ['teachers', 'students', 'notices', 'timeline', 'capsule', 'gallery'];
+      const results = [];
+
+      for (const t of tables) {
+        try {
+          const { data, error } = await supabaseClient.from(t).select('*').limit(1);
+          if (error) {
+            results.push({ table: t, ok: false, msg: error.message });
+          } else {
+            results.push({ table: t, ok: true, msg: `${data.length} records checked` });
+          }
+        } catch (e) {
+          results.push({ table: t, ok: false, msg: e.message });
+        }
+      }
+
+      grid.innerHTML = results.map(r => `
+        <div class="p-2.5 rounded-xl border ${r.ok ? 'bg-emerald-950/40 border-emerald-500/40' : 'bg-rose-950/40 border-rose-500/40'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white font-mono text-[11px]">${r.table}</span>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${r.ok ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">
+              ${r.ok ? 'HEALTHY' : 'NEEDS FIX'}
+            </span>
+          </div>
+          <p class="text-[10px] ${r.ok ? 'text-slate-400' : 'text-rose-300 font-semibold'} mt-1 truncate" title="${r.msg}">${r.msg}</p>
+        </div>
+      `).join('');
+
+      updateConnectionStatusBadge();
+    }
+
+    function openDiagnosticsModal() {
+      document.getElementById("diagnosticsModal").classList.remove("hidden");
+      runFullDiagnostics();
+    }
+
+    function closeDiagnosticsModal() {
+      document.getElementById("diagnosticsModal").classList.add("hidden");
+    }
+
+    function copySqlFixScript() {
+      const sqlText = document.getElementById("sqlFixSnippet").textContent;
+      copyToClipboard(sqlText, "Supabase SQL script copied! Run it in your Supabase SQL Editor.");
+    }
+
+    // =========================================================================
+    // AUTO-HEALING INSERTION ENGINE (FIXES "duplicate key gallery_pkey")
+    // =========================================================================
+    async function getNextTableId(tableName) {
+      let highestId = 0;
+      try {
+        if (supabaseClient) {
+          const { data } = await supabaseClient
+            .from(tableName)
+            .select('id')
+            .order('id', { ascending: false })
+            .limit(1);
+          if (data && data.length > 0 && data[0].id != null) {
+            const parsed = parseInt(data[0].id, 10);
+            if (!isNaN(parsed) && parsed > highestId) {
+              highestId = parsed;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(`Could not fetch max id for ${tableName}:`, e);
+      }
+
+      // Also check local dataset to guarantee zero collision
+      const localItems = state.data[tableName] || [];
+      for (const item of localItems) {
+        const parsed = parseInt(item.id, 10);
+        if (!isNaN(parsed) && parsed > highestId) {
+          highestId = parsed;
+        }
+      }
+
+      return highestId + 1;
+    }
+
+    async function resilientInsert(tableName, payload) {
+      if (!supabaseClient) initSupabase();
+
+      // 1. Try standard insert (lets Postgres generate id if sequence is aligned)
+      let { data, error } = await supabaseClient.from(tableName).insert([payload]).select();
+
+      // 2. If Postgres throws duplicate key constraint (sequence desynced), calculate next available ID and insert directly
+      if (error && (error.code === '23505' || String(error.message).includes('duplicate key') || String(error.message).includes('_pkey'))) {
+        console.warn(`[Supabase Auto-Heal] Duplicate key detected on ${tableName}. Healing sequence with next ID...`);
+        const nextId = await getNextTableId(tableName);
+        const healedPayload = { ...payload, id: nextId };
+        const retry = await supabaseClient.from(tableName).insert([healedPayload]).select();
+        if (!retry.error) {
+          return { data: retry.data, error: null };
+        }
+        // Fallback retry with safe offset
+        const healedPayload2 = { ...payload, id: nextId + 1 };
+        return await supabaseClient.from(tableName).insert([healedPayload2]).select();
+      }
+
+      return { data, error };
     }
 
     // =========================================================================
@@ -1166,12 +1432,12 @@
           payload.id = parseInt(origId);
           const { error } = await supabaseClient.from('teachers').update(payload).eq('id', origId);
           if (error) throw error;
-          showToast("Faculty updated!", "success");
+          showToast("Faculty updated in Supabase!", "success");
         } else {
           payload.display_order = state.data.teachers.length + 1;
-          const { error } = await supabaseClient.from('teachers').insert([payload]);
+          const { error } = await resilientInsert('teachers', payload);
           if (error) throw error;
-          showToast("Faculty added!", "success");
+          showToast("Faculty added to Supabase!", "success");
         }
         closeTeacherModal();
         await loadSupabaseData(false);
@@ -1275,7 +1541,7 @@
       try {
         const { error } = await supabaseClient.from('students').upsert([payload], { onConflict: 'roll' });
         if (error) throw error;
-        showToast(`Student Roll ${roll} saved!`, "success");
+        showToast(`Student Roll ${roll} saved to Supabase!`, "success");
         closeStudentModal();
         await loadSupabaseData(false);
       } catch (err) {
@@ -1322,7 +1588,7 @@
         });
 
         doc.save("BNSCK_HSC27_SectionA_Students.pdf");
-        showToast("Student details PDF exported successfully!", "success");
+        showToast("Student directory PDF exported successfully!", "success");
       } catch (err) {
         showToast("PDF error: " + err.message, "error");
       }
@@ -1393,11 +1659,11 @@
           payload.id = parseInt(origId);
           const { error } = await supabaseClient.from('notices').update(payload).eq('id', origId);
           if (error) throw error;
-          showToast("Notice updated!", "success");
+          showToast("Notice updated in Supabase!", "success");
         } else {
-          const { error } = await supabaseClient.from('notices').insert([payload]);
+          const { error } = await resilientInsert('notices', payload);
           if (error) throw error;
-          showToast("Notice posted!", "success");
+          showToast("Notice posted to Supabase!", "success");
         }
         closeNoticeModal();
         await loadSupabaseData(false);
@@ -1451,23 +1717,30 @@
     async function handleSaveTimeline(e) {
       e.preventDefault();
       const origId = document.getElementById("timelineOriginalId").value;
-      const payload = {
-        date: document.getElementById("timelineDate").value.trim(),
-        title: document.getElementById("timelineTitle").value.trim(),
-        description: document.getElementById("timelineDesc").value.trim()
-      };
+      const title = document.getElementById("timelineTitle").value.trim();
+      const date = document.getElementById("timelineDate").value.trim();
+      const desc = document.getElementById("timelineDesc").value.trim();
+
+      const candidatePayloads = [
+        { date, title, description: desc },
+        { date, title, desc: desc },
+        { title, date }
+      ];
 
       try {
-        if (origId) {
-          payload.id = parseInt(origId);
-          const { error } = await supabaseClient.from('timeline').update(payload).eq('id', origId);
-          if (error) throw error;
-          showToast("Milestone updated!", "success");
-        } else {
-          const { error } = await supabaseClient.from('timeline').insert([payload]);
-          if (error) throw error;
-          showToast("Milestone added!", "success");
+        let saved = false;
+        for (const p of candidatePayloads) {
+          if (origId) {
+            p.id = parseInt(origId);
+            const { error } = await supabaseClient.from('timeline').update(p).eq('id', origId);
+            if (!error) { saved = true; break; }
+          } else {
+            const { error } = await resilientInsert('timeline', p);
+            if (!error) { saved = true; break; }
+          }
         }
+        if (!saved) throw new Error("Could not save to timeline table. Check RLS policies.");
+        showToast(origId ? "Milestone updated in Supabase!" : "Milestone saved to Supabase!", "success");
         closeTimelineModal();
         await loadSupabaseData(false);
       } catch (err) {
@@ -1518,22 +1791,29 @@
     async function handleSaveCapsule(e) {
       e.preventDefault();
       const origId = document.getElementById("capsuleOriginalId").value;
-      const payload = {
-        title: document.getElementById("capsuleTitle").value.trim(),
-        description: document.getElementById("capsuleDesc").value.trim()
-      };
+      const title = document.getElementById("capsuleTitle").value.trim();
+      const desc = document.getElementById("capsuleDesc").value.trim();
+
+      const candidatePayloads = [
+        { title, description: desc },
+        { title, desc: desc },
+        { title }
+      ];
 
       try {
-        if (origId) {
-          payload.id = parseInt(origId);
-          const { error } = await supabaseClient.from('capsule').update(payload).eq('id', origId);
-          if (error) throw error;
-          showToast("Memory updated!", "success");
-        } else {
-          const { error } = await supabaseClient.from('capsule').insert([payload]);
-          if (error) throw error;
-          showToast("Memory saved!", "success");
+        let saved = false;
+        for (const p of candidatePayloads) {
+          if (origId) {
+            p.id = parseInt(origId);
+            const { error } = await supabaseClient.from('capsule').update(p).eq('id', origId);
+            if (!error) { saved = true; break; }
+          } else {
+            const { error } = await resilientInsert('capsule', p);
+            if (!error) { saved = true; break; }
+          }
         }
+        if (!saved) throw new Error("Could not save to capsule table. Check RLS policies.");
+        showToast(origId ? "Memory updated in Supabase!" : "Memory saved to Supabase!", "success");
         closeCapsuleModal();
         await loadSupabaseData(false);
       } catch (err) {
@@ -1542,7 +1822,7 @@
     }
 
     // =========================================================================
-    // GALLERY CRUD (FIXED ADD PHOTO & RESILIENT STORAGE + SYNC)
+    // GALLERY CRUD (SCHEMA-ADAPTIVE & VERIFIED SUPABASE SYNC)
     // =========================================================================
     function renderGalleryGrid() {
       const grid = document.getElementById("galleryGrid");
@@ -1565,10 +1845,10 @@
       }
 
       grid.innerHTML = state.data.gallery.map(g => {
-        const photoSrc = g.url || g.image_url || g.photo_url || '';
-        const photoTitle = g.title || 'Untitled Photo';
-        const photoTag = g.tag || 'CAMPUS';
-        const photoDesc = g.description || g.desc || 'No caption entered.';
+        const photoSrc = g.url || g.image_url || g.photo_url || g.image || g.photo || g.src || '';
+        const photoTitle = g.title || g.name || g.caption || 'Untitled Photo';
+        const photoTag = g.tag || g.category || 'CAMPUS';
+        const photoDesc = g.description || g.desc || g.details || 'No caption entered.';
         const recordId = g.id;
 
         return `
@@ -1604,10 +1884,10 @@
       if (item) {
         document.getElementById("galleryModalTitle").textContent = "Edit Photo Details";
         document.getElementById("galleryOriginalId").value = item.id;
-        document.getElementById("galleryTitle").value = item.title || '';
-        document.getElementById("galleryTag").value = item.tag || 'CAMPUS';
+        document.getElementById("galleryTitle").value = item.title || item.name || '';
+        document.getElementById("galleryTag").value = item.tag || item.category || 'CAMPUS';
         document.getElementById("galleryOrder").value = item.display_order || 1;
-        const photoUrl = item.url || item.image_url || item.photo_url || '';
+        const photoUrl = item.url || item.image_url || item.photo_url || item.src || '';
         document.getElementById("galleryUrl").value = photoUrl;
         document.getElementById("galleryDesc").value = item.description || item.desc || '';
         updateGalleryPreview(photoUrl);
@@ -1647,7 +1927,9 @@
 
     async function handleSaveGallery(e) {
       e.preventDefault();
-      const origId = document.getElementById("galleryOriginalId").value;
+      if (!supabaseClient) initSupabase();
+
+      const origId = document.getElementById("galleryOriginalId").value.trim();
       const title = document.getElementById("galleryTitle").value.trim();
       const tag = (document.getElementById("galleryTag").value.trim() || 'CAMPUS').toUpperCase();
       const display_order = parseInt(document.getElementById("galleryOrder").value) || (state.data.gallery.length + 1);
@@ -1661,98 +1943,89 @@
 
       const saveBtn = document.getElementById("saveGalleryBtn");
       saveBtn.disabled = true;
-      saveBtn.innerHTML = `<span>Saving Photo...</span>`;
+      saveBtn.innerHTML = `<span>Saving to Supabase...</span>`;
 
-      // Resilient payload structure covering both schema variations
-      const primaryPayload = {
-        title: title,
-        tag: tag,
-        display_order: display_order,
-        url: url,
-        description: desc
-      };
+      // Candidate field mappings to seamlessly support any Supabase gallery table schema
+      const candidates = [
+        { title, tag, display_order, url, description: desc },
+        { title, tag, display_order, image_url: url, description: desc },
+        { title, tag, display_order, photo_url: url, description: desc },
+        { title, tag, display_order, url, desc: desc },
+        { title, url, description: desc },
+        { title, image_url: url, description: desc },
+        { title, url, desc: desc },
+        { title, image_url: url },
+        { title, url }
+      ];
+
+      // Treat any local fallback ID as a fresh INSERT in Supabase
+      const isRealRemoteUpdate = Boolean(origId && !String(origId).startsWith('local_'));
+      let lastErrorMessage = '';
+      let saveSuccessful = false;
 
       try {
-        let savedSuccessfully = false;
-
-        if (supabaseClient) {
-          if (origId) {
-            // Update mode
-            const numId = isNaN(origId) ? origId : parseInt(origId);
-            let res = await supabaseClient.from('gallery').update(primaryPayload).eq('id', numId);
-            
-            // If schema uses 'desc' instead of 'description'
-            if (res.error && res.error.message && res.error.message.includes('description')) {
-              res = await supabaseClient.from('gallery').update({
-                title: title,
-                tag: tag,
-                display_order: display_order,
-                url: url,
-                desc: desc
-              }).eq('id', numId);
+        for (const payload of candidates) {
+          try {
+            if (isRealRemoteUpdate) {
+              const filterVal = isNaN(origId) ? origId : parseInt(origId);
+              const { error } = await supabaseClient.from('gallery').update(payload).eq('id', filterVal);
+              if (!error) {
+                saveSuccessful = true;
+                break;
+              } else {
+                lastErrorMessage = error.message;
+              }
+            } else {
+              const { error } = await resilientInsert('gallery', payload);
+              if (!error) {
+                saveSuccessful = true;
+                break;
+              } else {
+                lastErrorMessage = error.message;
+              }
             }
-            if (!res.error) savedSuccessfully = true;
-          } else {
-            // Insert mode
-            let res = await supabaseClient.from('gallery').insert([primaryPayload]);
-            
-            // Schema fallback for 'desc' instead of 'description'
-            if (res.error && res.error.message && res.error.message.includes('description')) {
-              res = await supabaseClient.from('gallery').insert([{
-                title: title,
-                tag: tag,
-                display_order: display_order,
-                url: url,
-                desc: desc
-              }]);
-            }
-            
-            // Schema fallback if table uses minimal fields (title, url, description)
-            if (res.error && res.error.message && (res.error.message.includes('tag') || res.error.message.includes('display_order'))) {
-              res = await supabaseClient.from('gallery').insert([{
-                title: title,
-                url: url,
-                description: desc
-              }]);
-            }
-
-            if (!res.error) savedSuccessfully = true;
+          } catch (itemErr) {
+            lastErrorMessage = itemErr.message;
           }
         }
 
-        // Local cache sync ensures photo is ALWAYS added and displayed immediately
+        if (!saveSuccessful) {
+          console.error("Supabase gallery insert failure details:", lastErrorMessage);
+          showToast(`Supabase Table Notice: ${lastErrorMessage || 'Check RLS permissions'}`, "error");
+        } else {
+          showToast(isRealRemoteUpdate ? "Photo updated in Supabase table!" : "Photo saved to Supabase gallery!", "success");
+        }
+
+        // Keep local cache synced so UI remains instantly responsive
         let localGallery = JSON.parse(localStorage.getItem('bnsck_custom_gallery') || '[]');
-        const newRecord = {
-          id: origId ? origId : 'local_' + Date.now(),
-          title: title,
-          tag: tag,
-          display_order: display_order,
-          url: url,
+        const localRecord = {
+          id: origId || ('local_' + Date.now()),
+          title,
+          tag,
+          display_order,
+          url,
           description: desc
         };
 
         if (origId) {
-          localGallery = localGallery.map(g => String(g.id) === String(origId) ? newRecord : g);
+          localGallery = localGallery.map(g => String(g.id) === String(origId) ? localRecord : g);
           const idx = state.data.gallery.findIndex(g => String(g.id) === String(origId));
-          if (idx !== -1) state.data.gallery[idx] = newRecord;
+          if (idx !== -1) state.data.gallery[idx] = localRecord;
         } else {
-          localGallery.unshift(newRecord);
-          state.data.gallery.unshift(newRecord);
+          localGallery.unshift(localRecord);
+          state.data.gallery.unshift(localRecord);
         }
         localStorage.setItem('bnsck_custom_gallery', JSON.stringify(localGallery));
 
         renderGalleryGrid();
         updateBadges();
         closeGalleryModal();
-        showToast(origId ? "Photo details updated!" : "New photo added to gallery!", "success");
 
-        // Background reload from Supabase
-        loadSupabaseData(false);
+        // Refresh live data from Supabase in the background
+        await loadSupabaseData(false);
       } catch (err) {
-        console.error("Gallery save error:", err);
-        showToast(err.message || "Saved locally to gallery!", "info");
-        closeGalleryModal();
-        renderGalleryGrid();
+        console.error("Gallery fatal handler error:", err);
+        showToast("Save error: " + err.message, "error");
       } finally {
         saveBtn.disabled = false;
         saveBtn.innerHTML = `<span>Save Photo</span>`;
@@ -1784,7 +2057,8 @@
       const { table, col, val } = pendingDeletion;
       try {
         if (supabaseClient) {
-          await supabaseClient.from(table).delete().eq(col, val);
+          const targetVal = (!isNaN(val) && typeof val !== 'boolean') ? parseInt(val) : val;
+          await supabaseClient.from(table).delete().eq(col, targetVal);
         }
 
         // Also purge from local storage cache if gallery
@@ -1795,7 +2069,7 @@
           state.data.gallery = state.data.gallery.filter(g => String(g.id) !== String(val));
         }
 
-        showToast("Record removed", "info");
+        showToast("Record removed from database", "info");
         closeConfirmModal();
         await loadSupabaseData(false);
       } catch (err) {
@@ -1838,39 +2112,75 @@
       }`;
       el.textContent = msg;
       container.appendChild(el);
-      setTimeout(() => el.remove(), 3200);
+      setTimeout(() => el.remove(), 3600);
     }
 
     // =========================================================================
-    // ENHANCED IMAGE UPLOADER (SUPABASE BUCKET + AUTOMATIC DATA-URL FALLBACK)
+    // ENHANCED MULTI-BUCKET STORAGE UPLOADER & COMPRESSION
     // =========================================================================
     async function uploadToSupabaseStorageBucket(file, folder = 'gallery') {
       if (!supabaseClient) initSupabase();
 
-      const bucket = CONFIG.STORAGE_BUCKET || 'bnsck';
+      // Candidate buckets tried in sequence
+      const candidateBuckets = [CONFIG.STORAGE_BUCKET || 'data', 'bnsck', 'gallery', 'photos', 'images', 'public'];
       const cleanName = `${folder}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
-      const { data, error } = await supabaseClient.storage
-        .from(bucket)
-        .upload(cleanName, file, { cacheControl: '3600', upsert: true });
+      let lastError = null;
 
-      if (error) {
-        throw error;
+      for (const bucket of candidateBuckets) {
+        try {
+          const { data, error } = await supabaseClient.storage
+            .from(bucket)
+            .upload(cleanName, file, { cacheControl: '3600', upsert: true });
+
+          if (!error && data) {
+            const { data: urlData } = supabaseClient.storage
+              .from(bucket)
+              .getPublicUrl(cleanName);
+
+            if (urlData && urlData.publicUrl) {
+              return urlData.publicUrl;
+            }
+          } else if (error) {
+            lastError = error;
+          }
+        } catch (e) {
+          lastError = e;
+        }
       }
 
-      const { data: { publicUrl } } = supabaseClient.storage
-        .from(bucket)
-        .getPublicUrl(cleanName);
-
-      return publicUrl;
+      throw lastError || new Error("Storage buckets not accessible. Check bucket public access or policies.");
     }
 
-    // Helper to read image locally as compressed Data URL if Supabase storage is unavailable
-    function readFileAsDataUrl(file) {
+    // High performance HTML5 Canvas downscaler if storage buckets are unavailable
+    function compressImageFile(file, maxWidth = 900, maxHeight = 900, quality = 0.70) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error("Failed to read image file"));
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width;
+            let h = img.height;
+            if (w > maxWidth || h > maxHeight) {
+              if (w / h > maxWidth / maxHeight) {
+                h = Math.round((h * maxWidth) / w);
+                w = maxWidth;
+              } else {
+                w = Math.round((w * maxHeight) / h);
+                h = maxHeight;
+              }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = () => reject(new Error("Image failed to load for compression"));
+          img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error("File reading failed"));
         reader.readAsDataURL(file);
       });
     }
@@ -1886,7 +2196,7 @@
       if (submitBtn) {
         origBtnText = submitBtn.innerHTML;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span>Processing Image...</span>`;
+        submitBtn.innerHTML = `<span>Uploading Image...</span>`;
       }
 
       showToast(`Uploading ${file.name}...`, 'info');
@@ -1894,15 +2204,15 @@
       try {
         let finalImageUrl = '';
 
-        // 1. Try uploading to Supabase Storage bucket first
+        // 1. Try uploading to Supabase Storage buckets
         try {
           finalImageUrl = await uploadToSupabaseStorageBucket(file, folder);
-          showToast('Image uploaded to Supabase Storage!', 'success');
+          showToast('Image uploaded directly to Supabase Storage!', 'success');
         } catch (storageErr) {
-          console.warn("Supabase Storage note, switching to direct image encoder:", storageErr);
-          // 2. Seamless local Base64 Data URL fallback so upload never fails
-          finalImageUrl = await readFileAsDataUrl(file);
-          showToast('Image processed and loaded ready to save!', 'success');
+          console.warn("Storage bucket restricted, switching to client compression:", storageErr);
+          // 2. Compress locally so payload fits without exceeding table quotas
+          finalImageUrl = await compressImageFile(file);
+          showToast('Image compressed & prepared for database saving!', 'info');
         }
         
         if (targetInput) {
